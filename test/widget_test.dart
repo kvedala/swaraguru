@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:swaraguru/main.dart';
@@ -31,13 +32,38 @@ class FakeShrutiAudio implements ShrutiAudio {
   Future<void> dispose() async => disposed = true;
 }
 
-Future<void> pumpStudio(WidgetTester tester, FakeShrutiAudio audio) async {
-  tester.view.physicalSize = const Size(1600, 1200);
+class TestAssetBundle extends CachingAssetBundle {
+  TestAssetBundle(this.readme);
+
+  final String readme;
+
+  @override
+  Future<ByteData> load(String key) => rootBundle.load(key);
+
+  @override
+  Future<String> loadString(String key, {bool cache = true}) =>
+      key == 'README.md'
+      ? Future.value(readme)
+      : rootBundle.loadString(key, cache: cache);
+}
+
+Future<void> pumpStudio(
+  WidgetTester tester,
+  FakeShrutiAudio audio, {
+  Size size = const Size(1600, 1200),
+}) async {
+  final readme = await tester.runAsync(
+    () => rootBundle.loadString('README.md'),
+  );
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   await tester.pumpWidget(
-    MaterialApp(home: SwaraGuruAdaptiveScaffold(shrutiAudio: audio)),
+    DefaultAssetBundle(
+      bundle: TestAssetBundle(readme!),
+      child: MaterialApp(home: SwaraGuruAdaptiveScaffold(shrutiAudio: audio)),
+    ),
   );
 }
 
@@ -100,5 +126,111 @@ void main() {
     expect(find.text('Stop Shruti'), findsNothing);
     expect(find.text('Play Shruti'), findsOneWidget);
     expect(audio.stopped, isTrue);
+  });
+
+  testWidgets('Help, privacy, and license are reachable from navigation', (
+    tester,
+  ) async {
+    await pumpStudio(tester, FakeShrutiAudio());
+
+    await tester.tap(find.byTooltip('Open Navigation & Varisai Drawer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'Help'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Guides and answers for using SwaraGuru.'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Current capabilities', findRichText: true),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<NavigationRail>(find.byType(NavigationRail)).selectedIndex,
+      isNull,
+    );
+
+    await tester.tap(find.byTooltip('Open Navigation & Varisai Drawer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'Privacy Policy'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('How SwaraGuru handles information and audio.'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('does not request or use microphone access'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byTooltip('Open Navigation & Varisai Drawer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'License'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('The terms for using SwaraGuru source code.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Permission is hereby granted'), findsOneWidget);
+  });
+
+  testWidgets('Home returns to the studio and preserves the selected lesson', (
+    tester,
+  ) async {
+    await pumpStudio(tester, FakeShrutiAudio());
+    await tester.tap(find.byTooltip('Open Navigation & Varisai Drawer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sarali Varisai 2 — Shadja-Rishabha Anchor'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Shruti Drone Lab'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text('Shruti Drone Lab'),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.byTooltip('Home (Varisai Studio)'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text('Varisai Studio'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Sarali Varisai 2 — Shadja-Rishabha Anchor'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Mobile drawer scrolls to Help and Home restores navigation', (
+    tester,
+  ) async {
+    await pumpStudio(tester, FakeShrutiAudio(), size: const Size(360, 640));
+    await tester.tap(find.byTooltip('Open Navigation & Varisai Drawer'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.widgetWithText(ListTile, 'Help'),
+      200,
+      scrollable: find.descendant(
+        of: find.byType(Drawer).first,
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.tap(find.widgetWithText(ListTile, 'Help'));
+    await tester.pumpAndSettle();
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('Help')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byTooltip('Home (Varisai Studio)'));
+    await tester.pumpAndSettle();
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

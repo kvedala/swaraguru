@@ -844,54 +844,62 @@ class SwaraGuruHeroBanner extends StatelessWidget {
                   children: [
                     const SwaraGuruLogoEmblem(size: 72),
                     const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'SwaraGuru',
-                          style: TextStyle(
-                            fontFamily: 'serif',
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.6,
-                            color: SwaraColors.brightGold,
-                            height: 1.05,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'CARNATIC STUDIO',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 3.2,
-                            color: SwaraColors.royalGold.withValues(alpha: 0.9),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        RichText(
-                          text: const TextSpan(
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'SwaraGuru',
                             style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontFamily: 'serif',
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.6,
+                              color: SwaraColors.brightGold,
+                              height: 1.05,
                             ),
-                            children: [
-                              TextSpan(
-                                text: 'Learn Carnatic Music • ',
-                                style: TextStyle(color: SwaraColors.brightGold),
-                              ),
-                              TextSpan(
-                                text: 'Voice Analysis • ',
-                                style: TextStyle(color: SwaraColors.cyanWave),
-                              ),
-                              TextSpan(
-                                text: 'Interactive Practice',
-                                style: TextStyle(color: SwaraColors.brightGold),
-                              ),
-                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 2),
+                          Text(
+                            'CARNATIC STUDIO',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 3.2,
+                              color: SwaraColors.royalGold.withValues(
+                                alpha: 0.9,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          RichText(
+                            text: const TextSpan(
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: 'Learn Carnatic Music • ',
+                                  style: TextStyle(
+                                    color: SwaraColors.brightGold,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: 'Voice Analysis • ',
+                                  style: TextStyle(color: SwaraColors.cyanWave),
+                                ),
+                                TextSpan(
+                                  text: 'Interactive Practice',
+                                  style: TextStyle(
+                                    color: SwaraColors.brightGold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -909,8 +917,10 @@ class SwaraGuruHeroBanner extends StatelessWidget {
                       color: SwaraColors.royalGold.withValues(alpha: 0.45),
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 6,
+                    runSpacing: 8,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -935,7 +945,6 @@ class SwaraGuruHeroBanner extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(width: 12),
                       FilledButton.icon(
                         onPressed: onToggleDrone,
                         style: FilledButton.styleFrom(
@@ -954,7 +963,6 @@ class SwaraGuruHeroBanner extends StatelessWidget {
                           dronePlaying ? 'Stop Shruti' : 'Play Shruti',
                         ),
                       ),
-                      const SizedBox(width: 6),
                       IconButton(
                         tooltip: 'Configure Pure vs Multi-Note Shruti Drone',
                         onPressed: onOpenShrutiDrawer,
@@ -1050,6 +1058,16 @@ class StepPitchEvaluation {
 
 enum ShrutiDroneMode { pureSingleNote, multiNoteChord }
 
+enum _InfoPage { help, privacy, license }
+
+extension on _InfoPage {
+  String get title => switch (this) {
+    _InfoPage.help => 'Help',
+    _InfoPage.privacy => 'Privacy Policy',
+    _InfoPage.license => 'License',
+  };
+}
+
 class SwaraGuruAdaptiveScaffold extends StatefulWidget {
   const SwaraGuruAdaptiveScaffold({super.key, this.shrutiAudio});
 
@@ -1065,6 +1083,30 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
 
   // Navigation screen index: 0 = Varisai Studio, 1 = Live Pitch Coach, 2 = Shruti Drone Lab
   int _selectedScreenIndex = 0;
+  _InfoPage? _infoPage;
+  late Future<String> _readme;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _readme = DefaultAssetBundle.of(context).loadString('README.md');
+  }
+
+  static const _screenTitles = [
+    'Varisai Studio',
+    'Live Pitch Coach',
+    'Shruti Drone Lab',
+  ];
+
+  String get _currentScreenTitle =>
+      _infoPage?.title ?? _screenTitles[_selectedScreenIndex];
+
+  void _selectScreen(int index) {
+    setState(() {
+      _selectedScreenIndex = index;
+      _infoPage = null;
+    });
+  }
 
   // Base "Sa" (Adhara Shadjam) & Fine Tune
   ShrutiPitch _selectedShruti = kShrutiList[1]; // Default C# (1.5 Kattai)
@@ -1434,10 +1476,11 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
               if (isDesktop || isTablet)
                 NavigationRail(
                   backgroundColor: SwaraColors.indigoSurface,
-                  selectedIndex: _selectedScreenIndex,
+                  selectedIndex: _infoPage == null
+                      ? _selectedScreenIndex
+                      : null,
                   extended: isDesktop,
-                  onDestinationSelected: (idx) =>
-                      setState(() => _selectedScreenIndex = idx),
+                  onDestinationSelected: _selectScreen,
                   leading: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: SwaraGuruLogoEmblem(size: isDesktop ? 48 : 38),
@@ -1461,37 +1504,41 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
                 const VerticalDivider(width: 1, color: SwaraColors.borderGold),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Branded Mandala & Veena Hero Banner at top of workspace
-                      SwaraGuruHeroBanner(
-                        activeShruti: _selectedShruti,
-                        dronePlaying: _dronePlaying,
-                        droneSummary: _droneSummaryLabel,
-                        onToggleDrone: _toggleDrone,
-                        onOpenShrutiDrawer: () =>
-                            _scaffoldKey.currentState?.openEndDrawer(),
-                      ),
-                      const SizedBox(height: 16),
-                      if (_selectedScreenIndex == 0)
-                        _buildVarisaiStudioScreen(isDesktop),
-                      if (_selectedScreenIndex == 1) _buildPitchCoachScreen(),
-                      if (_selectedScreenIndex == 2)
-                        _buildShrutiDroneLabScreen(),
-                    ],
+                  key: ValueKey(
+                    _infoPage?.name ?? 'screen-$_selectedScreenIndex',
                   ),
+                  padding: const EdgeInsets.all(16),
+                  child: _infoPage == null
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SwaraGuruHeroBanner(
+                              activeShruti: _selectedShruti,
+                              dronePlaying: _dronePlaying,
+                              droneSummary: _droneSummaryLabel,
+                              onToggleDrone: _toggleDrone,
+                              onOpenShrutiDrawer: () =>
+                                  _scaffoldKey.currentState?.openEndDrawer(),
+                            ),
+                            const SizedBox(height: 16),
+                            if (_selectedScreenIndex == 0)
+                              _buildVarisaiStudioScreen(isDesktop),
+                            if (_selectedScreenIndex == 1)
+                              _buildPitchCoachScreen(),
+                            if (_selectedScreenIndex == 2)
+                              _buildShrutiDroneLabScreen(),
+                          ],
+                        )
+                      : _buildInfoPage(),
                 ),
               ),
             ],
           ),
-          bottomNavigationBar: isMobile
+          bottomNavigationBar: isMobile && _infoPage == null
               ? NavigationBar(
                   backgroundColor: SwaraColors.indigoSurface,
                   selectedIndex: _selectedScreenIndex,
-                  onDestinationSelected: (idx) =>
-                      setState(() => _selectedScreenIndex = idx),
+                  onDestinationSelected: _selectScreen,
                   destinations: const [
                     NavigationDestination(
                       icon: Icon(Icons.grid_view_rounded),
@@ -1526,30 +1573,43 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
       ),
       title: Row(
         children: [
-          const SwaraGuruLogoEmblem(size: 32),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'SwaraGuru',
-                style: TextStyle(
-                  fontFamily: 'serif',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
-                  color: SwaraColors.brightGold,
+          if (!isMobile) ...[
+            const SwaraGuruLogoEmblem(size: 32),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'SwaraGuru',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'serif',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    color: SwaraColors.brightGold,
+                  ),
                 ),
-              ),
-              if (!isMobile)
                 Text(
-                  _activeLesson.title,
+                  _currentScreenTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 11, color: Colors.white70),
                 ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
       actions: [
+        IconButton(
+          tooltip: 'Home (Varisai Studio)',
+          onPressed: () => _selectScreen(0),
+          icon: const Icon(Icons.home_rounded),
+        ),
         // 1. PopupMenuButton for Base "Sa" (A, A#, B, B#, C, C#...)
         PopupMenuButton<ShrutiPitch>(
           tooltip: 'Select Base Sa (Adhara Shadjam)',
@@ -1663,8 +1723,8 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
     return Drawer(
       width: 320,
       child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
             // Branded Drawer Header
             Container(
@@ -1718,29 +1778,60 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
             ListTile(
               leading: const Icon(Icons.grid_view_rounded),
               title: const Text('Varisai Studio (Adi Tala Grid)'),
-              selected: _selectedScreenIndex == 0,
+              selected: _infoPage == null && _selectedScreenIndex == 0,
               onTap: () {
-                setState(() => _selectedScreenIndex = 0);
+                _selectScreen(0);
                 Navigator.of(context).pop();
               },
             ),
             ListTile(
               leading: const Icon(Icons.mic_external_on_rounded),
               title: const Text('Live Vocal Pitch Coach'),
-              selected: _selectedScreenIndex == 1,
+              selected: _infoPage == null && _selectedScreenIndex == 1,
               onTap: () {
-                setState(() => _selectedScreenIndex = 1);
+                _selectScreen(1);
                 Navigator.of(context).pop();
               },
             ),
             ListTile(
               leading: const Icon(Icons.surround_sound_rounded),
               title: const Text('Shruti Drone Lab (Pure / Multi)'),
-              selected: _selectedScreenIndex == 2,
+              selected: _infoPage == null && _selectedScreenIndex == 2,
               onTap: () {
-                setState(() => _selectedScreenIndex = 2);
+                _selectScreen(2);
                 Navigator.of(context).pop();
               },
+            ),
+            const Divider(color: SwaraColors.borderGold),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Text(
+                'HELP & LEGAL',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: SwaraColors.royalGold,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.help_outline_rounded),
+              title: const Text('Help'),
+              selected: _infoPage == _InfoPage.help,
+              onTap: () => _openInfoPage(_InfoPage.help),
+            ),
+            ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: const Text('Privacy Policy'),
+              selected: _infoPage == _InfoPage.privacy,
+              onTap: () => _openInfoPage(_InfoPage.privacy),
+            ),
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: const Text('License'),
+              selected: _infoPage == _InfoPage.license,
+              onTap: () => _openInfoPage(_InfoPage.license),
             ),
             const Divider(color: SwaraColors.borderGold),
 
@@ -1751,7 +1842,7 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'VARISAI & GEETHAM REPERTOIRE',
+                    'REPERTOIRE',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -1769,43 +1860,186 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
                 ],
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _lessons.length,
-                itemBuilder: (ctx, idx) {
-                  final lesson = _lessons[idx];
-                  final selected = lesson.id == _activeLesson.id;
-                  return ListTile(
-                    selected: selected,
-                    selectedTileColor: SwaraColors.royalGold.withValues(
-                      alpha: 0.15,
-                    ),
-                    title: Text(
-                      lesson.title,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: Text(
-                      '${lesson.group} • ${lesson.swaras.length} Swaras',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Colors.white60,
-                      ),
-                    ),
-                    onTap: () {
-                      _stopTransport();
-                      setState(() {
-                        _activeLesson = lesson;
-                        _stepEvaluations.clear();
-                        _selectedScreenIndex = 0;
-                      });
-                      Navigator.of(context).pop();
-                    },
-                  );
+            ..._lessons.map((lesson) {
+              final selected = lesson.id == _activeLesson.id;
+              return ListTile(
+                selected: selected,
+                selectedTileColor: SwaraColors.royalGold.withValues(
+                  alpha: 0.15,
+                ),
+                title: Text(
+                  lesson.title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  '${lesson.group} • ${lesson.swaras.length} Swaras',
+                  style: const TextStyle(fontSize: 11, color: Colors.white60),
+                ),
+                onTap: () {
+                  _stopTransport();
+                  setState(() {
+                    _activeLesson = lesson;
+                    _stepEvaluations.clear();
+                    _selectedScreenIndex = 0;
+                    _infoPage = null;
+                  });
+                  Navigator.of(context).pop();
                 },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openInfoPage(_InfoPage page) {
+    setState(() => _infoPage = page);
+    Navigator.of(context).pop();
+  }
+
+  Widget _buildInfoPage() {
+    final page = _infoPage!;
+    final title = page.title;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'serif',
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: SwaraColors.brightGold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(switch (page) {
+          _InfoPage.help => 'Guides and answers for using SwaraGuru.',
+          _InfoPage.privacy => 'How SwaraGuru handles information and audio.',
+          _InfoPage.license => 'The terms for using SwaraGuru source code.',
+        }, style: const TextStyle(color: Colors.white70)),
+        const SizedBox(height: 20),
+        switch (page) {
+          _InfoPage.help => _buildHelpContent(),
+          _InfoPage.privacy => _buildPrivacyContent(),
+          _InfoPage.license => _buildLicenseContent(),
+        },
+      ],
+    );
+  }
+
+  Widget _buildHelpContent() {
+    return FutureBuilder<String>(
+      future: _readme,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Unable to load the documentation: ${snapshot.error}');
+        }
+        if (!snapshot.hasData) {
+          return const Text('Loading documentation...');
+        }
+        return _infoCard('README (Markdown)', snapshot.data!);
+      },
+    );
+  }
+
+  Widget _buildPrivacyContent() {
+    return Column(
+      children: [
+        _infoCard('Effective date', 'November 17, 2026'),
+        _infoCard(
+          'Information handled by the app',
+          'SwaraGuru does not require an account and the app does not collect '
+              'or transmit personal information, usage analytics, or '
+              'microphone recordings. Custom lessons and practice selections '
+              'are held in app memory for the current session and are not '
+              'saved after you close it.',
+        ),
+        _infoCard(
+          'Audio and microphone',
+          'The Shruti Drone Lab generates tones locally in your browser when '
+              'you start playback; it does not send audio to a server. The '
+              'Live Pitch Coach is a simulation and does not request or use '
+              'microphone access.',
+        ),
+        _infoCard(
+          'Web hosting',
+          'If you use the hosted web app, GitHub Pages may process standard '
+              'connection information such as your IP address and browser '
+              'request data to deliver the site. That processing is governed '
+              'by GitHub’s privacy policy: https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement.',
+        ),
+        _infoCard(
+          'Changes and contact',
+          'If app behavior changes, this policy will be updated. Questions '
+              'or privacy concerns can be raised at '
+              'https://github.com/kvedala/swaraguru/issues. GitHub Issues '
+              'are public, so do not post personal or sensitive information.',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLicenseContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _infoCard(
+          'MIT License',
+          'Copyright (c) 2026 SwaraGuru contributors\n\n'
+              'Permission is hereby granted, free of charge, to any person '
+              'obtaining a copy of this software and associated documentation '
+              'files (the "Software"), to deal in the Software without '
+              'restriction, including without limitation the rights to use, '
+              'copy, modify, merge, publish, distribute, sublicense, and/or '
+              'sell copies of the Software, and to permit persons to whom the '
+              'Software is furnished to do so, subject to the following '
+              'conditions:\n\n'
+              'The above copyright notice and this permission notice shall be '
+              'included in all copies or substantial portions of the '
+              'Software.\n\n'
+              'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY '
+              'KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE '
+              'WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR '
+              'PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR '
+              'COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER '
+              'LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, '
+              'ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE '
+              'USE OR OTHER DEALINGS IN THE SOFTWARE.',
+        ),
+        _infoCard(
+          'Third-party components',
+          'This license applies to SwaraGuru project source code. Third-party '
+              'packages and components remain subject to their own licenses.',
+        ),
+      ],
+    );
+  }
+
+  Widget _infoCard(String title, String body) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: SwaraColors.royalGold,
               ),
+            ),
+            const SizedBox(height: 8),
+            SelectableText(
+              body,
+              style: const TextStyle(height: 1.5, color: Colors.white),
             ),
           ],
         ),
@@ -2383,26 +2617,28 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _detectedSwaraFullName,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _detectedSwaraFullName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      _detectedFreqHz > 0
-                          ? '${_detectedFreqHz.toStringAsFixed(1)} Hz (${_detectedCentError >= 0 ? "+$_detectedCentError" : _detectedCentError} cents from Swarasthana)'
-                          : 'Tap any Swara cell or press "Sing & Match Swaras"',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: SwaraColors.cyanWave,
+                      Text(
+                        _detectedFreqHz > 0
+                            ? '${_detectedFreqHz.toStringAsFixed(1)} Hz (${_detectedCentError >= 0 ? "+$_detectedCentError" : _detectedCentError} cents from Swarasthana)'
+                            : 'Tap any Swara cell or press "Sing & Match Swaras"',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: SwaraColors.cyanWave,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
