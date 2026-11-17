@@ -1,6 +1,6 @@
 name: Web CI and GitHub Pages
 
-on:
+'on':
   push:
     branches: [main]
   pull_request:
