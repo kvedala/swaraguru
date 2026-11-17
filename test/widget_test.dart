@@ -1,30 +1,104 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-
 import 'package:swaraguru/main.dart';
+import 'package:swaraguru/shruti_audio.dart';
+
+class FakeShrutiAudio implements ShrutiAudio {
+  Map<double, double> voices = {};
+  double volume = 0;
+  bool stopped = false;
+  bool disposed = false;
+  bool failToStart = false;
+
+  @override
+  Future<void> start(Map<double, double> voices, double volume) async {
+    if (failToStart) throw StateError('Audio blocked');
+    update(voices, volume);
+  }
+
+  @override
+  void update(Map<double, double> voices, double volume) {
+    this.voices = Map.of(voices);
+    this.volume = volume;
+  }
+
+  @override
+  void stop() => stopped = true;
+
+  @override
+  Future<void> dispose() async => disposed = true;
+}
+
+Future<void> pumpStudio(WidgetTester tester, FakeShrutiAudio audio) async {
+  tester.view.physicalSize = const Size(1600, 1200);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  await tester.pumpWidget(
+    MaterialApp(home: SwaraGuruAdaptiveScaffold(shrutiAudio: audio)),
+  );
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets(
+    'Play starts mixed audio, Stop ends it, disposal releases audio',
+    (tester) async {
+      final audio = FakeShrutiAudio();
+      await pumpStudio(tester, audio);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      await tester.tap(find.text('Play Shruti'));
+      await tester.pump();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+      final sa = kShrutiList[1].frequencyHz;
+      expect(audio.voices, {
+        sa * math.pow(2, -500 / 1200): 0.45,
+        sa: 0.95,
+        sa * math.pow(2, 700 / 1200): 0.80,
+        sa * 2: 0.70,
+      });
+      expect(audio.volume, 0.55);
+      expect(find.text('Stop Shruti'), findsOneWidget);
+
+      await tester.tap(find.text('Stop Shruti'));
+      await tester.pump();
+      expect(audio.stopped, isTrue);
+      expect(find.text('Play Shruti'), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(audio.disposed, isTrue);
+    },
+  );
+
+  testWidgets('Mixer mode changes update playing audio', (tester) async {
+    final audio = FakeShrutiAudio();
+    await pumpStudio(tester, audio);
+    await tester.tap(find.text('Play Shruti'));
+    await tester.pump();
+    await tester.tap(find.text('Shruti Drone Lab'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pure Single Note'));
+    await tester.pumpAndSettle();
+
+    expect(audio.voices, {kShrutiList[1].frequencyHz: 1.0});
+    final highSa = kShrutiList[1].frequencyHz * 2;
+    await tester.tap(find.textContaining('(${highSa.round()} Hz)'));
+    await tester.pump();
+    expect(audio.voices, {highSa: 1.0});
+  });
+
+  testWidgets('Playback errors are visible and do not show playing state', (
+    tester,
+  ) async {
+    final audio = FakeShrutiAudio()..failToStart = true;
+    await pumpStudio(tester, audio);
+    await tester.tap(find.text('Play Shruti'));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.textContaining('Unable to play Shruti:'), findsOneWidget);
+    expect(find.text('Stop Shruti'), findsNothing);
+    expect(find.text('Play Shruti'), findsOneWidget);
+    expect(audio.stopped, isTrue);
   });
 }
