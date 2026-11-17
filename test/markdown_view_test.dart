@@ -1,3 +1,5 @@
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:swaraguru/ui/widgets/markdown_view.dart';
@@ -109,5 +111,46 @@ void main() {
       find.text('Could not open https://example.com/docs'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('links are tab-focusable and activate with Enter and Space', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final opened = <Uri>[];
+    await pumpMarkdown(tester, (uri) async {
+      opened.add(uri);
+      return true;
+    });
+
+    final licenseFocus = Focus.of(tester.element(find.text('license')));
+    final docsFocus = Focus.of(
+      tester.element(
+        find.textContaining('https://example.com/docs', findRichText: true),
+      ),
+    );
+    final linkSemantics = tester
+        .getSemantics(find.bySemanticsLabel('license'))
+        .getSemanticsData();
+    expect(linkSemantics.flagsCollection.isLink, isTrue);
+    expect(linkSemantics.hasAction(SemanticsAction.tap), isTrue);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    expect(licenseFocus.hasFocus, isTrue);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(opened, [
+      Uri.parse('https://github.com/kvedala/swaraguru/blob/main/LICENSE'),
+    ]);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    expect(docsFocus.hasFocus, isTrue);
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pump();
+
+    expect(opened.last, Uri.parse('https://example.com/docs'));
+    semantics.dispose();
   });
 }

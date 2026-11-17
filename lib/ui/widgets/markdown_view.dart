@@ -1,4 +1,4 @@
-import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,7 +34,8 @@ Future<bool> launchExternalLink(Uri uri) =>
 /// Renders GitHub-flavoured Markdown with the SwaraGuru palette.
 ///
 /// Supports headings, paragraphs, emphasis, inline and fenced code, nested
-/// lists, tables, block quotes, rules, and tappable links. Text is selectable.
+/// lists, tables, block quotes, rules, and keyboard-accessible links. Text is
+/// selectable.
 class MarkdownView extends StatefulWidget {
   const MarkdownView({
     super.key,
@@ -54,7 +55,6 @@ class MarkdownView extends StatefulWidget {
 }
 
 class _MarkdownViewState extends State<MarkdownView> {
-  final _recognizers = <TapGestureRecognizer>[];
   List<Widget>? _blocks;
 
   @override
@@ -65,19 +65,6 @@ class _MarkdownViewState extends State<MarkdownView> {
         oldWidget.linkBase != widget.linkBase) {
       _blocks = null;
     }
-  }
-
-  @override
-  void dispose() {
-    _disposeRecognizers();
-    super.dispose();
-  }
-
-  void _disposeRecognizers() {
-    for (final recognizer in _recognizers) {
-      recognizer.dispose();
-    }
-    _recognizers.clear();
   }
 
   Future<void> _openLink(Uri uri) async {
@@ -94,31 +81,105 @@ class _MarkdownViewState extends State<MarkdownView> {
   }
 
   List<Widget> _build() {
-    _disposeRecognizers();
     final document = md.Document(
       extensionSet: md.ExtensionSet.gitHubFlavored,
       encodeHtml: false,
     );
     final nodes = document.parseLines(widget.data.split(RegExp(r'\r?\n')));
+    var linkOrder = 0;
     return _MarkdownBuilder(
       linkBase: widget.linkBase,
-      recognizerFor: (uri) {
-        final recognizer = TapGestureRecognizer()..onTap = () => _openLink(uri);
-        _recognizers.add(recognizer);
-        return recognizer;
+      linkSpanFor: (uri, label, spans, style) {
+        return WidgetSpan(
+          alignment: PlaceholderAlignment.baseline,
+          baseline: TextBaseline.alphabetic,
+          child: _MarkdownLink(
+            order: linkOrder++,
+            label: label,
+            onActivate: () => _openLink(uri),
+            child: Text.rich(TextSpan(children: spans), style: style),
+          ),
+        );
       },
     ).blocks(nodes);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SelectionArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _blocks ??= _build(),
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: SelectionArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _blocks ??= _build(),
+        ),
       ),
     );
   }
+}
+
+class _MarkdownLink extends StatefulWidget {
+  const _MarkdownLink({
+    required this.order,
+    required this.label,
+    required this.onActivate,
+    required this.child,
+  });
+
+  final int order;
+  final String label;
+  final VoidCallback onActivate;
+  final Widget child;
+
+  @override
+  State<_MarkdownLink> createState() => _MarkdownLinkState();
+}
+
+class _MarkdownLinkState extends State<_MarkdownLink> {
+  bool _focused = false;
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent &&
+        (event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.space)) {
+      widget.onActivate();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  @override
+  Widget build(BuildContext context) => FocusTraversalOrder(
+    order: NumericFocusOrder(widget.order.toDouble()),
+    child: Focus(
+      onFocusChange: (focused) => setState(() => _focused = focused),
+      onKeyEvent: _handleKeyEvent,
+      child: Semantics(
+        link: true,
+        focusable: true,
+        focused: _focused,
+        label: widget.label,
+        onTap: widget.onActivate,
+        child: ExcludeSemantics(
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onActivate,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: _focused
+                      ? SwaraColors.cyanWave.withValues(alpha: 0.14)
+                      : null,
+                ),
+                child: widget.child,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _MarkdownStyles {
@@ -186,10 +247,16 @@ class _MarkdownStyles {
 }
 
 class _MarkdownBuilder {
-  _MarkdownBuilder({required this.linkBase, required this.recognizerFor});
+  _MarkdownBuilder({required this.linkBase, required this.linkSpanFor});
 
   final Uri? linkBase;
-  final TapGestureRecognizer Function(Uri uri) recognizerFor;
+  final InlineSpan Function(
+    Uri uri,
+    String label,
+    List<InlineSpan> children,
+    TextStyle style,
+  )
+  linkSpanFor;
 
   static const _blockTags = {
     'h1',
@@ -309,11 +376,7 @@ class _MarkdownBuilder {
     );
   }
 
-  List<InlineSpan> _inlines(
-    List<md.Node> nodes,
-    TextStyle style, {
-    TapGestureRecognizer? recognizer,
-  }) {
+  List<InlineSpan> _inlines(List<md.Node> nodes, TextStyle style) {
     final spans = <InlineSpan>[];
     for (final node in nodes) {
       if (node is md.Text) {
@@ -322,11 +385,10 @@ class _MarkdownBuilder {
             // Soft line breaks inside a paragraph render as spaces.
             text: node.text.replaceAll(RegExp(r'\s*\n\s*'), ' '),
             style: style,
-            recognizer: recognizer,
           ),
         );
       } else if (node is md.Element) {
-        spans.addAll(_inlineElement(node, style, recognizer));
+        spans.addAll(_inlineElement(node, style));
       } else {
         spans.add(TextSpan(text: node.textContent, style: style));
       }
@@ -334,11 +396,7 @@ class _MarkdownBuilder {
     return spans;
   }
 
-  List<InlineSpan> _inlineElement(
-    md.Element element,
-    TextStyle style,
-    TapGestureRecognizer? recognizer,
-  ) {
+  List<InlineSpan> _inlineElement(md.Element element, TextStyle style) {
     final children = element.children ?? const <md.Node>[];
     switch (element.tag) {
       case 'strong' || 'b':
@@ -350,26 +408,19 @@ class _MarkdownBuilder {
                 ? Colors.white
                 : style.color,
           ),
-          recognizer: recognizer,
         );
       case 'em' || 'i':
-        return _inlines(
-          children,
-          style.copyWith(fontStyle: FontStyle.italic),
-          recognizer: recognizer,
-        );
+        return _inlines(children, style.copyWith(fontStyle: FontStyle.italic));
       case 'del' || 's':
         return _inlines(
           children,
           style.copyWith(decoration: TextDecoration.lineThrough),
-          recognizer: recognizer,
         );
       case 'code':
         return [
           TextSpan(
             text: element.textContent.replaceAll('\n', ' '),
             style: _MarkdownStyles.inlineCode(style),
-            recognizer: recognizer,
           ),
         ];
       case 'a':
@@ -378,13 +429,17 @@ class _MarkdownBuilder {
           base: linkBase,
         );
         if (uri == null) {
-          return _inlines(children, style, recognizer: recognizer);
+          return _inlines(children, style);
         }
-        return _inlines(
-          children,
-          _MarkdownStyles.link(style),
-          recognizer: recognizerFor(uri),
-        );
+        final linkStyle = _MarkdownStyles.link(style);
+        return [
+          linkSpanFor(
+            uri,
+            element.textContent,
+            _inlines(children, linkStyle),
+            linkStyle,
+          ),
+        ];
       case 'br':
         return [TextSpan(text: '\n', style: style)];
       case 'img':
@@ -397,7 +452,7 @@ class _MarkdownBuilder {
             ),
         ];
       default:
-        return _inlines(children, style, recognizer: recognizer);
+        return _inlines(children, style);
     }
   }
 

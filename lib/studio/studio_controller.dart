@@ -392,7 +392,10 @@ class StudioController extends ChangeNotifier {
       }
       // Rescheduling here rather than in setBpm keeps the transport moving
       // while the tempo slider is dragged.
-      if (stepDuration != duration) {
+      final nextStepIsKarvai =
+          cursor < _steps.length && _steps[cursor].isKarvai;
+      if (stepDuration != duration &&
+          (mode != TransportMode.reference || !nextStepIsKarvai)) {
         duration = stepDuration;
         _transportTimer?.cancel();
         _transportTimer = Timer.periodic(duration, (_) => tick());

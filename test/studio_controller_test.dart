@@ -282,6 +282,34 @@ void main() {
     });
   });
 
+  testWidgets('Reference tempo changes wait until after a karvai', (
+    tester,
+  ) async {
+    await withController((controller, audio, _) async {
+      controller.addCustomLesson(
+        title: 'Tempo Karvai',
+        raga: catalog.defaultRaga,
+        tokens: ['S', ',', ',', 'R', 'G'],
+      );
+      final slow = controller.stepDuration;
+      await controller.playReference();
+      controller.setBpm(136);
+      final fast = controller.stepDuration;
+
+      await tester.pump(slow);
+      expect(controller.activeStepIndex, 1);
+      await tester.pump(slow);
+      expect(controller.activeStepIndex, 2);
+      await tester.pump(slow);
+      expect(controller.activeStepIndex, 3);
+      expect(audio.notes[0].duration, slow * (3 * 0.94));
+
+      await tester.pump(fast);
+      expect(controller.activeStepIndex, 4);
+      expect(audio.notes[1].duration, fast * 0.94);
+    });
+  });
+
   testWidgets('Drone follows the selected Sa and fine tuning', (tester) async {
     await withController((controller, audio, _) async {
       await controller.toggleDrone();

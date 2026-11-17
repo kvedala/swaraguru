@@ -74,15 +74,26 @@ class WebSwaraAudio implements SwaraAudio {
     final previous = _drone;
     final context = _context;
     if (previous == null || context == null) return;
+    final pluckedVoicesChanged =
+        sound.instrument.timbre.isPlucked &&
+        !_sameDroneVoices(previous.voices, sound.voices);
     _drone = sound;
     _droneBus!.gain.setTargetAtTime(sound.volume, context.currentTime, 0.03);
-    if (previous.instrument != sound.instrument) {
+    if (previous.instrument != sound.instrument || pluckedVoicesChanged) {
       _stopDroneVoices(_fadeSeconds);
       _beginDrone(sound);
     } else if (!sound.instrument.timbre.isPlucked) {
       _syncSustainedDrone(sound);
     }
-    // Plucked drones pick up new voices on their next pluck.
+    // Master-volume-only changes keep the current pluck cycle.
+  }
+
+  static bool _sameDroneVoices(List<DroneVoice> a, List<DroneVoice> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   @override
