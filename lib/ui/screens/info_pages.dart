@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../theme/swara_theme.dart';
+import '../widgets/markdown_view.dart';
 
 enum InfoPage { help, privacy, license }
 
@@ -67,7 +68,13 @@ class _HelpContent extends StatelessWidget {
         if (!snapshot.hasData) {
           return const Text('Loading documentation...');
         }
-        return InfoCard(title: 'README (Markdown)', body: snapshot.data!);
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: MarkdownView(data: snapshot.data!),
+          ),
+        );
       },
     );
   }

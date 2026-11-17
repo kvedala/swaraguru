@@ -197,8 +197,9 @@ tuning. The Veena-and-microphone emblem and mandala hero banner
 are drawn with Flutter `CustomPainter`; no raster brand assets are required.
 
 The left navigation drawer also includes **Help**, **Privacy Policy**, and
-**License** pages. Help displays this bundled README as selectable Markdown,
-so updating the README updates the in-app documentation in the next build.
+**License** pages. Help renders this bundled README as formatted, selectable
+Markdown, so updating the README updates the in-app documentation in the next
+build.
 The privacy policy describes session-only lesson data, locally generated
 audio, and on-device microphone analysis. The app source is licensed under
 the [MIT License](LICENSE).
@@ -229,8 +230,8 @@ swaraguru/
 ```
 
 The app uses `material_ui` for Material components, `web` for browser audio,
-`record` for microphone capture, and `json_annotation` with
-`json_serializable` for models.
+`record` for microphone capture, `json_annotation` with `json_serializable`
+for models, and `markdown` with `url_launcher` for the Help page.
 
 ## Brand palette
 

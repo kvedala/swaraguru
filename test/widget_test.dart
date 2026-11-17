@@ -185,6 +185,8 @@ void main() {
       find.textContaining('Current capabilities', findRichText: true),
       findsOneWidget,
     );
+    expect(find.textContaining('## ', findRichText: true), findsNothing);
+    expect(find.byType(Table), findsWidgets);
     expect(
       tester.widget<NavigationRail>(find.byType(NavigationRail)).selectedIndex,
       isNull,
