@@ -188,6 +188,30 @@ void main() {
     expect(find.textContaining('## ', findRichText: true), findsNothing);
     expect(find.byType(Table), findsWidgets);
     expect(
+      find.textContaining(
+        'Quick access through the app bar',
+        findRichText: true,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(
+        'Microphone audio is never recorded, stored, or uploaded',
+        findRichText: true,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('secure context', findRichText: true),
+      findsOneWidget,
+    );
+    for (final developerOnly in ['Getting started', 'git clone']) {
+      expect(
+        find.textContaining(developerOnly, findRichText: true),
+        findsNothing,
+      );
+    }
+    expect(
       tester.widget<NavigationRail>(find.byType(NavigationRail)).selectedIndex,
       isNull,
     );

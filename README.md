@@ -104,6 +104,24 @@ highlights the active swara and tala kriya.
 Use headphones so the drone and reference notes do not leak into the
 microphone.
 
+### Audio and microphone
+
+On the web, click **Play Shruti** (or **Start Drone** in the Shruti Drone
+Lab). Audio starts from a user gesture, as required by browser autoplay
+policies. Each instrument is an additive-synthesis voice with its own
+harmonics, envelope, and filter. The tampura plucks its lowest string first,
+then the remaining strings from the top down, repeating the cycle like a
+traditional tampura. Pitch, fine tuning, instrument, channel levels, and
+volume update while playing.
+
+The first time you use **Listen & Identify** or start **Sing & Match** with
+microphone input, your browser asks for microphone permission. The web app
+requires a secure context (HTTPS or `localhost`).
+
+The microphone stream is analysed on the device with the YIN pitch detection
+algorithm. Microphone audio is never recorded, stored, or uploaded, and the
+microphone is released as soon as listening and coaching stop.
+
 ### Shruti Drone Lab
 
 - **Drone instrument:** tampura (plucked strings with a buzzing jawari),
@@ -117,6 +135,8 @@ microphone.
 - Live pitch, fine-tuning, channel-level, and master-volume controls.
 - Quick access through the app bar, right-hand Shruti drawer, and dedicated
   Shruti Drone Lab screen.
+
+<!-- end-of-app-help: the in-app Help page shows only the content above. -->
 
 ## Getting started
 
@@ -165,20 +185,6 @@ The tests cover tuning, notation parsing, JSON round-trips, all 72
 melakartas, pitch detection, swara identification and grading, the studio
 controller, and the main UI flows with fake audio and microphone sources.
 
-## Audio and microphone
-
-On the web, click **Play Shruti** (or **Start Drone** in the Shruti Drone
-Lab). Audio starts from a user gesture, as required by browser autoplay
-policies. Each instrument is an additive-synthesis voice with its own
-harmonics, envelope, and filter. The tampura plucks its lowest string first,
-then the remaining strings from the top down, repeating the cycle like a
-traditional tampura. Pitch, fine tuning, instrument, channel levels, and
-volume update while playing.
-
-The microphone stream is analysed on the device with the YIN pitch detection
-algorithm. Audio is never recorded, stored, or uploaded, and the microphone
-is released as soon as listening and coaching stop.
-
 ## Adaptive interface
 
 `SwaraGuruAdaptiveScaffold` uses `LayoutBuilder` to switch navigation at these
@@ -197,9 +203,11 @@ tuning. The Veena-and-microphone emblem and mandala hero banner
 are drawn with Flutter `CustomPainter`; no raster brand assets are required.
 
 The left navigation drawer also includes **Help**, **Privacy Policy**, and
-**License** pages. Help renders this bundled README as formatted, selectable
-Markdown, so updating the README updates the in-app documentation in the next
-build.
+**License** pages. Help renders the user guide portion of this bundled README,
+everything above the end-of-app-help marker, as formatted, selectable
+Markdown. This includes the audio and microphone guidance; developer
+documentation below the marker appears only in the repository. Updating the
+guide updates the in-app documentation in the next build.
 The privacy policy describes session-only lesson data, locally generated
 audio, and on-device microphone analysis. The app source is licensed under
 the [MIT License](LICENSE).

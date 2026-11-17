@@ -19,6 +19,16 @@ extension InfoPageText on InfoPage {
   };
 }
 
+/// Marks where the README's user guide ends and developer documentation
+/// (setup, project structure, deployment) begins.
+const appHelpEndMarker = '<!-- end-of-app-help';
+
+/// Returns the part of [readme] shown on the in-app Help page.
+String appHelpFromReadme(String readme) {
+  final end = readme.indexOf(appHelpEndMarker);
+  return end < 0 ? readme : readme.substring(0, end).trimRight();
+}
+
 class InfoPageView extends StatelessWidget {
   const InfoPageView({super.key, required this.page, required this.readme});
 
@@ -72,7 +82,7 @@ class _HelpContent extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: MarkdownView(data: snapshot.data!),
+            child: MarkdownView(data: appHelpFromReadme(snapshot.data!)),
           ),
         );
       },
