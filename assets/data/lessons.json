@@ -1,0 +1,58 @@
+{
+  "lessons": [
+    {
+      "id": "sarali-1",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 1 — Arohanam & Avarohanam",
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "description": "Foundation exercise ascending and descending through the 7 swarasthanas.",
+      "notation": "S R G M P D N Ṡ Ṡ N D P M G R S"
+    },
+    {
+      "id": "sarali-2",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 2 — Shadja-Rishabha Anchor",
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "description": "Anchors on S R S R S R G M before ascending to Tara Shadjam.",
+      "notation": "S R S R S R G M S R G M P D N Ṡ Ṡ N Ṡ N Ṡ N D P Ṡ N D P M G R S"
+    },
+    {
+      "id": "sarali-3",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 3 — Triplet Phrase Weave",
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "description": "Builds stability across S R G S R G S R phrases.",
+      "notation": "S R G S R G S R S R G M P D N Ṡ Ṡ N D Ṡ N D Ṡ N Ṡ N D P M G R S"
+    },
+    {
+      "id": "janta-1",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 1 — Double Swara Sphuritam",
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "description": "Stresses pairs of identical swaras (SS RR GG MM) with gamaka impulse.",
+      "notation": "S S R R G G M M P P D D N N Ṡ Ṡ Ṡ Ṡ N N D D P P M M G G R R S S"
+    },
+    {
+      "id": "dhatu-1",
+      "group": "Dhatu Varisai",
+      "title": "Dhatu Varisai 1 — Zig-Zag Interval Leaps",
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "description": "Trains non-linear swara leaps (S M G M R G S R) for accurate vocal pitch.",
+      "notation": "S M G M R G S R S G R G S R G M S R G M P D N Ṡ Ṡ N D P M G R S"
+    },
+    {
+      "id": "geetham-1",
+      "group": "Pillari Geetham",
+      "title": "Sri Gananatha (Lambodara) — Malahari",
+      "raga": "Malahari",
+      "tala": "Rupaka / Adi Grid",
+      "description": "Purandaradasa Pillari Geetham swara pallavi.",
+      "notation": "M P D Ṡ Ṡ Ṙ Ṙ Ṡ D P M P G R S ,"
+    }
+  ]
+}
