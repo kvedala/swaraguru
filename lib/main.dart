@@ -13,7 +13,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import 'shruti_audio.dart';
@@ -351,7 +351,7 @@ SwarasthanaSpec resolveSwaraByToken(String rawToken) {
     'Ġ': 'G_high',
     "G'": 'G_high',
   };
-  final code = aliasMap[t] ?? 'S';
+  final code = aliasMap[t] ?? t;
   return kSwarasthanaTable.firstWhere(
     (s) => s.code == code,
     orElse: () => kSwarasthanaTable[2],
@@ -1051,7 +1051,9 @@ class StepPitchEvaluation {
 enum ShrutiDroneMode { pureSingleNote, multiNoteChord }
 
 class SwaraGuruAdaptiveScaffold extends StatefulWidget {
-  const SwaraGuruAdaptiveScaffold({super.key});
+  const SwaraGuruAdaptiveScaffold({super.key, this.shrutiAudio});
+
+  final ShrutiAudio? shrutiAudio;
 
   @override
   State<SwaraGuruAdaptiveScaffold> createState() =>
@@ -1079,7 +1081,7 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
   // Shruti Box State: Pure Single Note vs. Multi-Note Tambura
   bool _dronePlaying = false;
   bool _droneStarting = false;
-  final ShrutiAudio _shrutiAudio = ShrutiAudio();
+  late final ShrutiAudio _shrutiAudio = widget.shrutiAudio ?? ShrutiAudio();
   ShrutiDroneMode _droneMode = ShrutiDroneMode.multiNoteChord;
   String _pureSwaraCode = 'S';
   final Map<String, double> _multiNoteMix = {
@@ -1118,21 +1120,23 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
   @override
   void dispose() {
     _transportTimer?.cancel();
-    unawaited(_shrutiAudio.dispose().catchError((Object error, StackTrace stack) {
-      FlutterError.reportError(FlutterErrorDetails(
-        exception: error,
-        stack: stack,
-        library: 'Shruti audio',
-      ));
-    }));
+    unawaited(
+      _shrutiAudio.dispose().catchError((Object error, StackTrace stack) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: error,
+            stack: stack,
+            library: 'Shruti audio',
+          ),
+        );
+      }),
+    );
     super.dispose();
   }
 
   Map<double, double> get _droneVoices {
     if (_droneMode == ShrutiDroneMode.pureSingleNote) {
-      return {
-        _effectiveSaHz * resolveSwaraByToken(_pureSwaraCode).ratio: 1.0,
-      };
+      return {_effectiveSaHz * resolveSwaraByToken(_pureSwaraCode).ratio: 1.0};
     }
     return {
       for (final entry in _multiNoteMix.entries)
@@ -1179,9 +1183,8 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
     debugPrint('Shruti playback failed: $error\n$stack');
     if (!mounted) return;
     setState(() => _dronePlaying = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Unable to play Shruti: $error')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Unable to play Shruti: $error')));
   }
 
   double get _effectiveSaHz =>
@@ -1984,8 +1987,7 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
           min: 0.05,
           max: 1.0,
           label: 'Volume ${(100 * _masterDroneVolume).round()}%',
-          onChanged: (v) =>
-              _updateDroneSettings(() => _masterDroneVolume = v),
+          onChanged: (v) => _updateDroneSettings(() => _masterDroneVolume = v),
         ),
         Slider(
           value: _fineTuneCents,
