@@ -1,43 +1,80 @@
 # SwaraGuru - Carnatic Studio
 
-**Carnatic music learning, interactive practice, and web Shruti playback.**
+**Carnatic music learning, interactive practice, live pitch identification,
+and instrument playback.**
 
 SwaraGuru is a Flutter Material 3 application for exploring Carnatic swaras,
-practicing Varisai patterns, and maintaining a reference Shruti. Its adaptive
-interface brings together a **Varisai Studio**, **Live Pitch Coach**, and
-**Shruti Drone Lab** across mobile, tablet, desktop, and web layouts.
+practicing Varisai patterns in any raga, and singing against a reference
+Shruti. Its adaptive interface brings together a **Varisai Studio**, **Live
+Pitch Coach**, and **Shruti Drone Lab** across mobile, tablet, desktop, and
+web layouts.
 
 ## Current capabilities
 
-The web Shruti drone produces real audio. Lesson transport and vocal coaching
-currently use visual simulations: they do not play lesson audio, capture a
-microphone, or analyze a singer's voice.
+- **Listen & Identify:** the microphone names the swarasthana you sing or
+  play, in any octave, with its frequency, cent deviation, and whether it
+  belongs to the session raga.
+- **Sing & Match:** the Varisai grid advances in tala while the microphone
+  grades every step as Sruti Suddham, Apasruti, Wrong Swarasthana, or No
+  Voice.
+- **Instrument playback:** lessons play on a synthesized **harmonium**,
+  **piano**, or **tampura**, and the drone can use any of the three.
+- **Session raga:** any of the 72 melakartas or 25 common janya ragas
+  re-tunes the lesson grid, the note identifier, and the suggested tampura
+  tuning.
 
-### Carnatic repertoire and custom notation
+Instrument audio is synthesized with the Web Audio API and is available on
+the web build. Microphone pitch detection runs on the web, Android, iOS, and
+macOS. On platforms without instrument audio, playback is visual only and the
+app shows a notice.
 
-- Built-in Sarali Varisai 1-3, Janta Varisai 1, and Dhatu Varisai 1 exercises.
-- A Sri Gananatha (Lambodara) Pillari Geetham excerpt in Malahari.
-- A custom sequence dialog for entering a title, raga, and space-separated
-  swaras, such as `S R G M P D N Ṡ` or explicit swarasthanas such as
-  `R2 G3 M2 D2 N3`.
-- A notation grid and calculated reference frequencies relative to the chosen
-  base Sa.
+### Base Sa and tuning
 
-Custom sequences remain in memory for the current app session. The broader
-repertoire described in the project concept, including Sarali Varisai 4-6,
-Melsthayi Varisai, and Sapta Tala Alankaram, is not yet included.
+Choose the base Sa (Adhara Shadjam) from twelve pitches, matching the iSruthi
+reference table:
 
-### Base Sa and fine tuning
+| Pitch | Kattai | Hz | Pitch | Kattai | Hz |
+| --- | --- | --- | --- | --- | --- |
+| A | 6 | 110.00 | D# | 2½ | 155.56 |
+| A# | 6½ | 116.54 | E | 3 | 164.81 |
+| B | 7 | 123.47 | F | 4 | 174.61 |
+| C | 1 | 130.81 | F# | 4½ | 185.00 |
+| C# | 1½ | 138.59 | G | 5 | 196.00 |
+| D | 2 | 146.83 | G# | 5½ | 207.65 |
 
-Choose a reference pitch from C through B, including sharps and a B# option.
-Kattai labels accompany the pitch choices. Fine tuning from **-50 to +50 cents**
-adjusts the reference, with swara frequencies calculated relative to the
-effective Sa.
+The default is C# (1½ Kattai). Fine tuning from **-50 to +50 cents** adjusts
+the effective Sa.
+
+Sa, Shuddha Madhyamam (4:3), Panchamam (3:2), and Tara Shadjam (2:1) are pure
+intervals. The other swarasthanas are spaced evenly (geometrically) between
+these anchors, so Shuddha Rishabham is about 99.6 cents above Sa. All sixteen
+swara names are supported; enharmonic pairs such as R2/G1 and D3/N2 share a
+pitch.
+
+### Ragas and repertoire
+
+- All 72 melakartas plus 25 popular janya ragas (Mohanam, Hamsadhwani,
+  Hindolam, Abhogi, Madhyamavati, and more), searchable by name, alias such
+  as "Kalyani" or "Todi", or melakarta number.
+- Built-in Sarali Varisai 1-3, Janta Varisai 1, Dhatu Varisai 1, and a Sri
+  Gananatha (Lambodara) Pillari Geetham excerpt in Malahari.
+- Changing the session raga re-resolves unnumbered letters: `R` in a lesson
+  becomes R1 in Mayamalavagowla and R2 in Kalyani. Swaras a janya raga omits
+  come from its parent melakarta.
+- **Practice Raga Scale** loads the arohanam and avarohanam of the session
+  raga as a lesson.
+- A custom song dialog accepts a title, a raga, and space-separated swaras
+  such as `S R G M P D N Ṡ`, explicit swarasthanas such as `R2 G3 M2`, octave
+  marks (`Ṡ` or `S'` above, `Ṇ` or `N.` below), and `,` for karvai.
+
+Ragas and lessons live in `assets/data/ragas.json` and
+`assets/data/lessons.json`. Custom songs remain in memory for the current
+session.
 
 ### Kaalam and Adi Tala practice
 
-The visual practice transport supports four speeds within an eight-beat
-Adi Tala cycle:
+The practice transport supports four speeds within an eight-beat Adi Tala
+cycle:
 
 | Kaalam | Swaras per beat |
 | --- | --- |
@@ -46,31 +83,37 @@ Adi Tala cycle:
 | Tempo 3 | 4 |
 | Tempo 4 | 8 |
 
-Set the tempo from **40 to 140 BPM** and follow the active swara and Tala hand
-gesture indicators. These controls advance the visual lesson; they do not
-synthesize its notes.
+Set the tempo from **40 to 140 BPM**. **Play Varisai** plays each swara on
+the selected instrument and holds it through any karvai, while the grid
+highlights the active swara and tala kriya.
 
-### Pitch-coaching simulator
+### Live Pitch Coach
 
-The Live Pitch Coach demonstrates expected-versus-detected pitch feedback
-using simulated student mistakes or a simulated pitch-accurate Vidwan:
+- **Listen & Identify** shows the nearest swara, its full name, frequency,
+  and a cents meter that turns green within 25 cents.
+- **Sing & Match** compares each grid step with the median of the steady
+  pitches heard during that step. Singing an octave higher or lower is
+  accepted.
+  - **Sruti Suddham:** the expected swarasthana within 25 cents.
+  - **Apasruti:** the expected swarasthana, but more than 25 cents off.
+  - **Wrong Swarasthana:** a different swarasthana from the expected note.
+  - **No Voice:** no steady pitch during the step.
+- **Coach Input** switches between the microphone and two demo singers, a
+  student with typical mistakes and a pitch-perfect Vidwan.
 
-- **Sruti Suddham:** a matching swarasthana within 25 cents.
-- **Apasruti:** pitch drift greater than 25 cents within the expected
-  swarasthana family.
-- **Wrong Swarasthana:** a different swarasthana from the expected note.
-
-Frequency, cent deviation, and note-level diagnostics illustrate the intended
-coaching experience. Real microphone input and live vocal pitch detection
-are not implemented.
+Use headphones so the drone and reference notes do not leak into the
+microphone.
 
 ### Shruti Drone Lab
 
-- **Pure single-note mode:** an isolated sine-tone reference for Sa, M1, M2,
-  Pa, N3, or upper Sa.
+- **Drone instrument:** tampura (plucked strings with a buzzing jawari),
+  harmonium (sustained reeds), or piano.
+- **Pure single-note mode:** an isolated reference for Sa, M1, M2, Pa, N3,
+  or upper Sa.
 - **Multi-note mode:** independently mixed lower Pa, lower N3, Sa, M1, M2,
   Pa, N3, and upper Sa.
-- Panchama, Madhyama, Nishada, and octave-Sa presets.
+- Pa, Ma, Ni, and Sa-only tampura tunings, with the tuning that suits the
+  session raga highlighted.
 - Live pitch, fine-tuning, channel-level, and master-volume controls.
 - Quick access through the app bar, right-hand Shruti drawer, and dedicated
   Shruti Drone Lab screen.
@@ -84,10 +127,6 @@ are not implemented.
 - Chrome for web development, or the appropriate Flutter toolchain for
   another target platform.
 
-Clone this repository rather than creating a new Flutter project or copying
-only `main.dart`: the app also needs its audio implementation and declared
-dependencies.
-
 ```sh
 git clone https://github.com/kvedala/swaraguru.git
 cd swaraguru
@@ -96,7 +135,16 @@ flutter run -d chrome
 ```
 
 For other configured targets, use `flutter devices` to find the device ID,
-then run `flutter run -d <device-id>`. Shruti audio is currently web-only.
+then run `flutter run -d <device-id>`.
+
+### Microphone permissions
+
+The browser asks for microphone access the first time you press **Listen &
+Identify** or start **Sing & Match** with microphone input. Native builds
+declare the permission in `ios/Runner/Info.plist`,
+`macos/Runner/Info.plist` plus the macOS entitlements, and
+`android/app/src/main/AndroidManifest.xml`. The web build needs a secure
+context (HTTPS or `localhost`).
 
 ### Development checks
 
@@ -106,20 +154,30 @@ flutter test
 flutter build web --release --base-href /swaraguru/
 ```
 
-The widget tests cover drone playback controls, mixer changes during playback,
-and visible playback errors.
+Model classes use `json_serializable`. After changing a class annotated with
+`@JsonSerializable`, regenerate and commit the `*.g.dart` files:
 
-## Web Shruti playback
+```sh
+dart run build_runner build --delete-conflicting-outputs
+```
 
-Run `flutter run -d chrome`, then click **Play Shruti** (or **Start Drone** in
-the Shruti Drone Lab). Playback starts from a user gesture, as required by
-browser autoplay policies. Pure mode synthesizes a sine tone; multi-note mode
-mixes continuous sine tones, not a sampled tambura. Pitch, fine tuning, channel
-levels, and master volume update while playing. Stop ends all active tones.
+The tests cover tuning, notation parsing, JSON round-trips, all 72
+melakartas, pitch detection, swara identification and grading, the studio
+controller, and the main UI flows with fake audio and microphone sources.
 
-Shruti audio currently supports web only; other platforms show an unsupported
-playback message. Reference lesson playback and vocal coaching remain visual
-simulations, not audio playback or microphone input.
+## Audio and microphone
+
+On the web, click **Play Shruti** (or **Start Drone** in the Shruti Drone
+Lab). Audio starts from a user gesture, as required by browser autoplay
+policies. Each instrument is an additive-synthesis voice with its own
+harmonics, envelope, and filter. The tampura plucks its lowest string first,
+then the remaining strings from the top down, repeating the cycle like a
+traditional tampura. Pitch, fine tuning, instrument, channel levels, and
+volume update while playing.
+
+The microphone stream is analysed on the device with the YIN pitch detection
+algorithm. Audio is never recorded, stored, or uploaded, and the microphone
+is released as soon as listening and coaching stop.
 
 ## Adaptive interface
 
@@ -141,9 +199,9 @@ are drawn with Flutter `CustomPainter`; no raster brand assets are required.
 The left navigation drawer also includes **Help**, **Privacy Policy**, and
 **License** pages. Help displays this bundled README as selectable Markdown,
 so updating the README updates the in-app documentation in the next build.
-The privacy policy describes session-only lesson data,
-locally generated Shruti audio, and the lack of microphone capture. The app
-source is licensed under the [MIT License](LICENSE).
+The privacy policy describes session-only lesson data, locally generated
+audio, and on-device microphone analysis. The app source is licensed under
+the [MIT License](LICENSE).
 
 For questions or bug reports, visit
 https://github.com/kvedala/swaraguru/issues. Issues are public; do not include
@@ -153,20 +211,26 @@ passwords, private recordings, or other sensitive information.
 
 ```text
 swaraguru/
-├── .github/workflows/web.yml  # Web validation, artifacts, and Pages deployment
+├── .github/workflows/web.yml   # Web validation, artifacts, and Pages deployment
+├── assets/data/                # Raga and lesson catalogs (JSON)
 ├── lib/
-│   ├── main.dart             # Adaptive UI, repertoire, tuning, and simulation
-│   ├── shruti_audio.dart     # Conditional audio implementation export
-│   ├── shruti_audio_stub.dart # Unsupported-platform audio implementation
-│   └── shruti_audio_web.dart # Browser Web Audio synthesis
-├── test/widget_test.dart     # Playback, mixer, and error-path tests
-├── pubspec.yaml              # SDK constraints and dependencies
+│   ├── main.dart               # Loads the catalog and starts the app
+│   ├── app.dart                # MaterialApp and theme
+│   ├── models/                 # json_serializable models, swara extensions
+│   ├── audio/                  # Instrument timbres and Web Audio engine
+│   ├── pitch/                  # Microphone source, YIN detector, identifier
+│   ├── studio/                 # StudioController session state
+│   ├── theme/                  # SwaraColors and Material theme
+│   └── ui/                     # Scaffold, screens, drawers, dialogs, widgets
+├── test/                       # Model, pitch, controller, and widget tests
+├── build.yaml                  # json_serializable options
+├── pubspec.yaml                # SDK constraints and dependencies
 └── README.md
 ```
 
-The app uses `material_ui` for Material components and `web` for browser audio
-APIs. The separate `SwaraGuruApp.jsx` prototype and Figma SVG-export workflow
-described in the project concept are not included in this repository.
+The app uses `material_ui` for Material components, `web` for browser audio,
+`record` for microphone capture, and `json_annotation` with
+`json_serializable` for models.
 
 ## Brand palette
 
