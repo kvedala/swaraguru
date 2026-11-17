@@ -1,0 +1,595 @@
+{
+  "ragas": [
+    {
+      "name": "Kanakangi",
+      "melakarta": 1,
+      "arohanam": "S R1 G1 M1 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M1 G1 R1 S"
+    },
+    {
+      "name": "Ratnangi",
+      "melakarta": 2,
+      "arohanam": "S R1 G1 M1 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M1 G1 R1 S"
+    },
+    {
+      "name": "Ganamurti",
+      "melakarta": 3,
+      "arohanam": "S R1 G1 M1 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M1 G1 R1 S"
+    },
+    {
+      "name": "Vanaspati",
+      "melakarta": 4,
+      "arohanam": "S R1 G1 M1 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M1 G1 R1 S"
+    },
+    {
+      "name": "Manavati",
+      "melakarta": 5,
+      "arohanam": "S R1 G1 M1 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M1 G1 R1 S"
+    },
+    {
+      "name": "Tanarupi",
+      "melakarta": 6,
+      "arohanam": "S R1 G1 M1 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M1 G1 R1 S"
+    },
+    {
+      "name": "Senavati",
+      "melakarta": 7,
+      "arohanam": "S R1 G2 M1 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M1 G2 R1 S"
+    },
+    {
+      "name": "Hanumatodi",
+      "melakarta": 8,
+      "aliases": [
+        "Todi"
+      ],
+      "arohanam": "S R1 G2 M1 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M1 G2 R1 S"
+    },
+    {
+      "name": "Dhenuka",
+      "melakarta": 9,
+      "arohanam": "S R1 G2 M1 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M1 G2 R1 S"
+    },
+    {
+      "name": "Natakapriya",
+      "melakarta": 10,
+      "arohanam": "S R1 G2 M1 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M1 G2 R1 S"
+    },
+    {
+      "name": "Kokilapriya",
+      "melakarta": 11,
+      "arohanam": "S R1 G2 M1 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M1 G2 R1 S"
+    },
+    {
+      "name": "Rupavati",
+      "melakarta": 12,
+      "arohanam": "S R1 G2 M1 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M1 G2 R1 S"
+    },
+    {
+      "name": "Gayakapriya",
+      "melakarta": 13,
+      "arohanam": "S R1 G3 M1 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M1 G3 R1 S"
+    },
+    {
+      "name": "Vakulabharanam",
+      "melakarta": 14,
+      "arohanam": "S R1 G3 M1 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M1 G3 R1 S"
+    },
+    {
+      "name": "Mayamalavagowla",
+      "melakarta": 15,
+      "arohanam": "S R1 G3 M1 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M1 G3 R1 S"
+    },
+    {
+      "name": "Chakravakam",
+      "melakarta": 16,
+      "arohanam": "S R1 G3 M1 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M1 G3 R1 S"
+    },
+    {
+      "name": "Suryakantam",
+      "melakarta": 17,
+      "arohanam": "S R1 G3 M1 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M1 G3 R1 S"
+    },
+    {
+      "name": "Hatakambari",
+      "melakarta": 18,
+      "arohanam": "S R1 G3 M1 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M1 G3 R1 S"
+    },
+    {
+      "name": "Jhankaradhvani",
+      "melakarta": 19,
+      "arohanam": "S R2 G2 M1 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M1 G2 R2 S"
+    },
+    {
+      "name": "Natabhairavi",
+      "melakarta": 20,
+      "arohanam": "S R2 G2 M1 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M1 G2 R2 S"
+    },
+    {
+      "name": "Keeravani",
+      "melakarta": 21,
+      "arohanam": "S R2 G2 M1 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M1 G2 R2 S"
+    },
+    {
+      "name": "Kharaharapriya",
+      "melakarta": 22,
+      "arohanam": "S R2 G2 M1 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M1 G2 R2 S"
+    },
+    {
+      "name": "Gourimanohari",
+      "melakarta": 23,
+      "arohanam": "S R2 G2 M1 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M1 G2 R2 S"
+    },
+    {
+      "name": "Varunapriya",
+      "melakarta": 24,
+      "arohanam": "S R2 G2 M1 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M1 G2 R2 S"
+    },
+    {
+      "name": "Mararanjani",
+      "melakarta": 25,
+      "arohanam": "S R2 G3 M1 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M1 G3 R2 S"
+    },
+    {
+      "name": "Charukesi",
+      "melakarta": 26,
+      "arohanam": "S R2 G3 M1 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M1 G3 R2 S"
+    },
+    {
+      "name": "Sarasangi",
+      "melakarta": 27,
+      "arohanam": "S R2 G3 M1 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M1 G3 R2 S"
+    },
+    {
+      "name": "Harikambhoji",
+      "melakarta": 28,
+      "arohanam": "S R2 G3 M1 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M1 G3 R2 S"
+    },
+    {
+      "name": "Dheerasankarabharanam",
+      "melakarta": 29,
+      "aliases": [
+        "Shankarabharanam"
+      ],
+      "arohanam": "S R2 G3 M1 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M1 G3 R2 S"
+    },
+    {
+      "name": "Naganandini",
+      "melakarta": 30,
+      "arohanam": "S R2 G3 M1 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M1 G3 R2 S"
+    },
+    {
+      "name": "Yagapriya",
+      "melakarta": 31,
+      "arohanam": "S R3 G3 M1 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M1 G3 R3 S"
+    },
+    {
+      "name": "Ragavardhini",
+      "melakarta": 32,
+      "arohanam": "S R3 G3 M1 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M1 G3 R3 S"
+    },
+    {
+      "name": "Gangeyabhushani",
+      "melakarta": 33,
+      "arohanam": "S R3 G3 M1 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M1 G3 R3 S"
+    },
+    {
+      "name": "Vagadheeswari",
+      "melakarta": 34,
+      "arohanam": "S R3 G3 M1 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M1 G3 R3 S"
+    },
+    {
+      "name": "Shulini",
+      "melakarta": 35,
+      "arohanam": "S R3 G3 M1 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M1 G3 R3 S"
+    },
+    {
+      "name": "Chalanata",
+      "melakarta": 36,
+      "arohanam": "S R3 G3 M1 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M1 G3 R3 S"
+    },
+    {
+      "name": "Salagam",
+      "melakarta": 37,
+      "arohanam": "S R1 G1 M2 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M2 G1 R1 S"
+    },
+    {
+      "name": "Jalarnavam",
+      "melakarta": 38,
+      "arohanam": "S R1 G1 M2 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M2 G1 R1 S"
+    },
+    {
+      "name": "Jhalavarali",
+      "melakarta": 39,
+      "arohanam": "S R1 G1 M2 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M2 G1 R1 S"
+    },
+    {
+      "name": "Navaneetam",
+      "melakarta": 40,
+      "arohanam": "S R1 G1 M2 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M2 G1 R1 S"
+    },
+    {
+      "name": "Pavani",
+      "melakarta": 41,
+      "arohanam": "S R1 G1 M2 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M2 G1 R1 S"
+    },
+    {
+      "name": "Raghupriya",
+      "melakarta": 42,
+      "arohanam": "S R1 G1 M2 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M2 G1 R1 S"
+    },
+    {
+      "name": "Gavambhodi",
+      "melakarta": 43,
+      "arohanam": "S R1 G2 M2 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M2 G2 R1 S"
+    },
+    {
+      "name": "Bhavapriya",
+      "melakarta": 44,
+      "arohanam": "S R1 G2 M2 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M2 G2 R1 S"
+    },
+    {
+      "name": "Shubhapantuvarali",
+      "melakarta": 45,
+      "arohanam": "S R1 G2 M2 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M2 G2 R1 S"
+    },
+    {
+      "name": "Shadvidamargini",
+      "melakarta": 46,
+      "arohanam": "S R1 G2 M2 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M2 G2 R1 S"
+    },
+    {
+      "name": "Suvarnangi",
+      "melakarta": 47,
+      "arohanam": "S R1 G2 M2 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M2 G2 R1 S"
+    },
+    {
+      "name": "Divyamani",
+      "melakarta": 48,
+      "arohanam": "S R1 G2 M2 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M2 G2 R1 S"
+    },
+    {
+      "name": "Dhavalambari",
+      "melakarta": 49,
+      "arohanam": "S R1 G3 M2 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M2 G3 R1 S"
+    },
+    {
+      "name": "Namanarayani",
+      "melakarta": 50,
+      "arohanam": "S R1 G3 M2 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M2 G3 R1 S"
+    },
+    {
+      "name": "Kamavardhini",
+      "melakarta": 51,
+      "arohanam": "S R1 G3 M2 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M2 G3 R1 S"
+    },
+    {
+      "name": "Ramapriya",
+      "melakarta": 52,
+      "arohanam": "S R1 G3 M2 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M2 G3 R1 S"
+    },
+    {
+      "name": "Gamanashrama",
+      "melakarta": 53,
+      "arohanam": "S R1 G3 M2 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M2 G3 R1 S"
+    },
+    {
+      "name": "Vishwambari",
+      "melakarta": 54,
+      "arohanam": "S R1 G3 M2 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M2 G3 R1 S"
+    },
+    {
+      "name": "Shamalangi",
+      "melakarta": 55,
+      "arohanam": "S R2 G2 M2 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M2 G2 R2 S"
+    },
+    {
+      "name": "Shanmukhapriya",
+      "melakarta": 56,
+      "arohanam": "S R2 G2 M2 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M2 G2 R2 S"
+    },
+    {
+      "name": "Simhendramadhyamam",
+      "melakarta": 57,
+      "arohanam": "S R2 G2 M2 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M2 G2 R2 S"
+    },
+    {
+      "name": "Hemavati",
+      "melakarta": 58,
+      "arohanam": "S R2 G2 M2 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M2 G2 R2 S"
+    },
+    {
+      "name": "Dharmavati",
+      "melakarta": 59,
+      "arohanam": "S R2 G2 M2 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M2 G2 R2 S"
+    },
+    {
+      "name": "Neetimati",
+      "melakarta": 60,
+      "arohanam": "S R2 G2 M2 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M2 G2 R2 S"
+    },
+    {
+      "name": "Kantamani",
+      "melakarta": 61,
+      "arohanam": "S R2 G3 M2 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M2 G3 R2 S"
+    },
+    {
+      "name": "Rishabhapriya",
+      "melakarta": 62,
+      "arohanam": "S R2 G3 M2 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M2 G3 R2 S"
+    },
+    {
+      "name": "Latangi",
+      "melakarta": 63,
+      "arohanam": "S R2 G3 M2 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M2 G3 R2 S"
+    },
+    {
+      "name": "Vachaspati",
+      "melakarta": 64,
+      "arohanam": "S R2 G3 M2 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M2 G3 R2 S"
+    },
+    {
+      "name": "Mechakalyani",
+      "melakarta": 65,
+      "aliases": [
+        "Kalyani"
+      ],
+      "arohanam": "S R2 G3 M2 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M2 G3 R2 S"
+    },
+    {
+      "name": "Chitrambari",
+      "melakarta": 66,
+      "arohanam": "S R2 G3 M2 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M2 G3 R2 S"
+    },
+    {
+      "name": "Sucharitra",
+      "melakarta": 67,
+      "arohanam": "S R3 G3 M2 P D1 N1 Ṡ",
+      "avarohanam": "Ṡ N1 D1 P M2 G3 R3 S"
+    },
+    {
+      "name": "Jyotiswarupini",
+      "melakarta": 68,
+      "arohanam": "S R3 G3 M2 P D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 P M2 G3 R3 S"
+    },
+    {
+      "name": "Dhatuvardhani",
+      "melakarta": 69,
+      "arohanam": "S R3 G3 M2 P D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M2 G3 R3 S"
+    },
+    {
+      "name": "Nasikabhushani",
+      "melakarta": 70,
+      "arohanam": "S R3 G3 M2 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M2 G3 R3 S"
+    },
+    {
+      "name": "Kosalam",
+      "melakarta": 71,
+      "arohanam": "S R3 G3 M2 P D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M2 G3 R3 S"
+    },
+    {
+      "name": "Rasikapriya",
+      "melakarta": 72,
+      "arohanam": "S R3 G3 M2 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M2 G3 R3 S"
+    },
+    {
+      "name": "Malahari",
+      "parentMelakarta": 15,
+      "arohanam": "S R1 M1 P D1 Ṡ",
+      "avarohanam": "Ṡ D1 P M1 G3 R1 S"
+    },
+    {
+      "name": "Mohanam",
+      "parentMelakarta": 28,
+      "arohanam": "S R2 G3 P D2 Ṡ",
+      "avarohanam": "Ṡ D2 P G3 R2 S"
+    },
+    {
+      "name": "Hamsadhwani",
+      "parentMelakarta": 29,
+      "arohanam": "S R2 G3 P N3 Ṡ",
+      "avarohanam": "Ṡ N3 P G3 R2 S"
+    },
+    {
+      "name": "Hindolam",
+      "parentMelakarta": 20,
+      "arohanam": "S G2 M1 D1 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D1 M1 G2 S"
+    },
+    {
+      "name": "Abhogi",
+      "parentMelakarta": 22,
+      "arohanam": "S R2 G2 M1 D2 Ṡ",
+      "avarohanam": "Ṡ D2 M1 G2 R2 S"
+    },
+    {
+      "name": "Shuddha Saveri",
+      "parentMelakarta": 29,
+      "arohanam": "S R2 M1 P D2 Ṡ",
+      "avarohanam": "Ṡ D2 P M1 R2 S"
+    },
+    {
+      "name": "Madhyamavati",
+      "parentMelakarta": 22,
+      "arohanam": "S R2 M1 P N2 Ṡ",
+      "avarohanam": "Ṡ N2 P M1 R2 S"
+    },
+    {
+      "name": "Shuddha Dhanyasi",
+      "parentMelakarta": 22,
+      "arohanam": "S G2 M1 P N2 Ṡ",
+      "avarohanam": "Ṡ N2 P M1 G2 S"
+    },
+    {
+      "name": "Bilahari",
+      "parentMelakarta": 29,
+      "arohanam": "S R2 G3 P D2 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M1 G3 R2 S"
+    },
+    {
+      "name": "Saveri",
+      "parentMelakarta": 15,
+      "arohanam": "S R1 M1 P D1 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M1 G3 R1 S"
+    },
+    {
+      "name": "Revati",
+      "parentMelakarta": 2,
+      "arohanam": "S R1 M1 P N2 Ṡ",
+      "avarohanam": "Ṡ N2 P M1 R1 S"
+    },
+    {
+      "name": "Hamsanandi",
+      "parentMelakarta": 53,
+      "arohanam": "S R1 G3 M2 D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 M2 G3 R1 S"
+    },
+    {
+      "name": "Sriranjani",
+      "parentMelakarta": 22,
+      "arohanam": "S R2 G2 M1 D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 M1 G2 R2 S"
+    },
+    {
+      "name": "Arabhi",
+      "parentMelakarta": 29,
+      "arohanam": "S R2 M1 P D2 Ṡ",
+      "avarohanam": "Ṡ N3 D2 P M1 G3 R2 S"
+    },
+    {
+      "name": "Bhupalam",
+      "parentMelakarta": 8,
+      "arohanam": "S R1 G2 P D1 Ṡ",
+      "avarohanam": "Ṡ D1 P G2 R1 S"
+    },
+    {
+      "name": "Kambhoji",
+      "parentMelakarta": 28,
+      "arohanam": "S R2 G3 M1 P D2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M1 G3 R2 S"
+    },
+    {
+      "name": "Natai",
+      "parentMelakarta": 36,
+      "arohanam": "S R3 G3 M1 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 P M1 R3 S"
+    },
+    {
+      "name": "Amritavarshini",
+      "parentMelakarta": 66,
+      "arohanam": "S G3 M2 P N3 Ṡ",
+      "avarohanam": "Ṡ N3 P M2 G3 S"
+    },
+    {
+      "name": "Vasantha",
+      "parentMelakarta": 17,
+      "arohanam": "S M1 G3 M1 D2 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D2 M1 G3 R1 S"
+    },
+    {
+      "name": "Kedaragowla",
+      "parentMelakarta": 28,
+      "arohanam": "S R2 M1 P N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P M1 G3 R2 S"
+    },
+    {
+      "name": "Shivaranjani",
+      "parentMelakarta": 22,
+      "arohanam": "S R2 G2 P D2 Ṡ",
+      "avarohanam": "Ṡ D2 P G2 R2 S"
+    },
+    {
+      "name": "Valaji",
+      "parentMelakarta": 28,
+      "arohanam": "S G3 P D2 N2 Ṡ",
+      "avarohanam": "Ṡ N2 D2 P G3 S"
+    },
+    {
+      "name": "Hamsanadam",
+      "parentMelakarta": 60,
+      "arohanam": "S R2 M2 P D3 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D3 P M2 R2 S"
+    },
+    {
+      "name": "Kalyana Vasantham",
+      "parentMelakarta": 21,
+      "arohanam": "S G2 M1 D1 N3 Ṡ",
+      "avarohanam": "Ṡ N3 D1 P M1 G2 R2 S"
+    },
+    {
+      "name": "Gambhiranata",
+      "parentMelakarta": 36,
+      "arohanam": "S G3 M1 P N3 Ṡ",
+      "avarohanam": "Ṡ N3 P M1 G3 S"
+    }
+  ]
+}

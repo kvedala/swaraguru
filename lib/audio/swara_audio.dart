@@ -1,0 +1,37 @@
+import '../models/drone_settings.dart';
+import '../models/instrument.dart';
+import 'swara_audio_stub.dart'
+    if (dart.library.js_interop) 'swara_audio_web.dart'
+    as platform;
+
+/// Sound output for the Shruti drone and swara playback.
+abstract class SwaraAudio {
+  factory SwaraAudio() => platform.createSwaraAudio();
+
+  /// Whether this platform can produce sound.
+  bool get isSupported;
+
+  /// Unlocks audio output. Call from a user gesture (a button press) so that
+  /// browser autoplay policies allow playback.
+  Future<void> activate();
+
+  Future<void> startDrone(DroneSound sound);
+
+  /// Applies new drone settings while it is playing.
+  void updateDrone(DroneSound sound);
+
+  void stopDrone();
+
+  /// Plays one swara at [frequencyHz] on [instrument] for [duration].
+  void playNote({
+    required double frequencyHz,
+    required Duration duration,
+    required SwaraInstrument instrument,
+    double volume = 0.8,
+  });
+
+  /// Silences any swaras started by [playNote].
+  void stopNotes();
+
+  Future<void> dispose();
+}
