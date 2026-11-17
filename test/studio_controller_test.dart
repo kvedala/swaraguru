@@ -212,6 +212,76 @@ void main() {
     });
   });
 
+  testWidgets('Changing coach input cancels a pending mic coaching start', (
+    tester,
+  ) async {
+    await withController((controller, _, pitch) async {
+      final starting = controller.startCoaching();
+      controller.setCoachInput(CoachInput.simulatedStudent);
+      await starting;
+
+      expect(controller.isCoaching, isFalse);
+      expect(controller.microphoneActive, isFalse);
+      expect(pitch.stops, 1);
+    });
+  });
+
+  testWidgets('A repeated coaching request keeps the starting mic', (
+    tester,
+  ) async {
+    await withController((controller, _, pitch) async {
+      final first = controller.startCoaching();
+      final second = controller.startCoaching();
+      await Future.wait([first, second]);
+
+      expect(controller.isCoaching, isTrue);
+      expect(controller.microphoneActive, isTrue);
+      expect(pitch.starts, 1);
+      expect(pitch.stops, 0);
+    });
+  });
+
+  testWidgets('Stopping listening while the mic starts releases it', (
+    tester,
+  ) async {
+    await withController((controller, _, pitch) async {
+      final starting = controller.toggleListening();
+      await controller.toggleListening();
+      await starting;
+
+      expect(controller.isListening, isFalse);
+      expect(controller.microphoneActive, isFalse);
+      expect(pitch.starts, 1);
+      expect(pitch.stops, 1);
+    });
+  });
+
+  testWidgets('Tempo changes take effect at the next step of playback', (
+    tester,
+  ) async {
+    await withController((controller, audio, _) async {
+      controller.addCustomLesson(
+        title: 'Tempo',
+        raga: catalog.defaultRaga,
+        tokens: ['S', 'R', 'G', 'M', 'P'],
+      );
+      final slow = controller.stepDuration;
+      await controller.playReference();
+      controller.setBpm(136);
+      final fast = controller.stepDuration;
+
+      await tester.pump(slow);
+      expect(controller.activeStepIndex, 1);
+      await tester.pump(fast);
+      await tester.pump(fast);
+      expect(controller.activeStepIndex, 3);
+      expect(
+        [for (final note in audio.notes) note.duration],
+        [slow * 0.94, fast * 0.94, fast * 0.94, fast * 0.94],
+      );
+    });
+  });
+
   testWidgets('Drone follows the selected Sa and fine tuning', (tester) async {
     await withController((controller, audio, _) async {
       await controller.toggleDrone();

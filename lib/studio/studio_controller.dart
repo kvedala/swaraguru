@@ -106,6 +106,7 @@ class StudioController extends ChangeNotifier {
     _notify();
   }
 
+  /// A running transport picks up the new tempo at its next step.
   void setBpm(int bpm) {
     _bpm = bpm.clamp(40, 140);
     _notify();
@@ -305,6 +306,11 @@ class StudioController extends ChangeNotifier {
 
   Timer? _transportTimer;
   int _transportGeneration = 0;
+
+  /// Generation of a microphone coaching request still waiting for capture.
+  int? _pendingMicCoaching;
+  bool get _micCoachingPending => _pendingMicCoaching == _transportGeneration;
+
   bool _unsupportedAudioNoticeShown = false;
   final List<double> _stepFrequencies = [];
 
@@ -318,7 +324,7 @@ class StudioController extends ChangeNotifier {
 
   void setCoachInput(CoachInput input) {
     if (input == _coachInput) return;
-    if (isCoaching) stopTransport();
+    if (isCoaching || _micCoachingPending) stopTransport();
     _coachInput = input;
     _notify();
   }
@@ -338,8 +344,11 @@ class StudioController extends ChangeNotifier {
     final generation = _transportGeneration;
     _evaluations.clear();
     _notify();
-    if (_coachInput == CoachInput.microphone && !await _acquireMicrophone()) {
-      return;
+    if (_coachInput == CoachInput.microphone) {
+      _pendingMicCoaching = generation;
+      final acquired = await _acquireMicrophone();
+      if (_pendingMicCoaching == generation) _pendingMicCoaching = null;
+      if (!acquired) return;
     }
     if (_disposed) return;
     if (generation != _transportGeneration) {
@@ -367,7 +376,7 @@ class StudioController extends ChangeNotifier {
     _mode = mode;
     _stepFrequencies.clear();
     final swarasPerBeat = _kaalam.swarasPerBeat;
-    final duration = stepDuration;
+    var duration = stepDuration;
     var cursor = 0;
 
     void tick() {
@@ -380,6 +389,13 @@ class StudioController extends ChangeNotifier {
       if (cursor >= _steps.length) {
         stopTransport();
         return;
+      }
+      // Rescheduling here rather than in setBpm keeps the transport moving
+      // while the tempo slider is dragged.
+      if (stepDuration != duration) {
+        duration = stepDuration;
+        _transportTimer?.cancel();
+        _transportTimer = Timer.periodic(duration, (_) => tick());
       }
       _activeStepIndex = cursor;
       _activeBeat = ((cursor ~/ swarasPerBeat) % 8) + 1;
@@ -526,11 +542,18 @@ class StudioController extends ChangeNotifier {
     }
     _isListening = true;
     _notify();
-    if (await _acquireMicrophone()) {
+    final acquired = await _acquireMicrophone();
+    if (_disposed) return;
+    if (!_isListening) {
+      // Listening was switched off while the microphone was starting.
+      _releaseMicrophoneIfIdle();
+      return;
+    }
+    if (acquired) {
       if (pitchDisplay.value.source != PitchDisplaySource.voice) {
         pitchDisplay.value = PitchDisplay.listening;
       }
-    } else if (!_disposed) {
+    } else {
       _isListening = false;
       _notify();
     }
@@ -573,7 +596,9 @@ class StudioController extends ChangeNotifier {
   }
 
   void _releaseMicrophoneIfIdle({bool force = false}) {
-    final coachingWithMic = isCoaching && _coachInput == CoachInput.microphone;
+    final coachingWithMic =
+        (isCoaching && _coachInput == CoachInput.microphone) ||
+        _micCoachingPending;
     if (!force && (_isListening || coachingWithMic)) return;
     final subscription = _micSubscription;
     if (subscription == null) return;
