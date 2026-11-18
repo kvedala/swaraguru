@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../audio/metronome_audio.dart';
 import '../audio/swara_audio.dart';
 import '../models/models.dart';
 import '../pitch/pitch_source.dart';
@@ -13,6 +14,7 @@ import 'pitch_display.dart';
 /// Where "Sing & Match" takes the student's pitch from.
 enum CoachInput { microphone, simulatedStudent, simulatedVidwan }
 
+/// User-facing names and descriptions for live and simulated coach inputs.
 extension CoachInputInfo on CoachInput {
   String get label => switch (this) {
     CoachInput.microphone => 'Microphone',
@@ -29,15 +31,24 @@ extension CoachInputInfo on CoachInput {
   };
 }
 
+/// Whether the lesson grid is stopped, playing a reference, or grading vocals.
 enum TransportMode { idle, reference, coaching }
 
-/// Session state for the studio: Sa, raga, lesson, drone, playback and
-/// pitch coaching. Widgets listen to it and call its actions.
+/// Coordinates one studio session and owns its audio and microphone lifecycles.
+///
+/// The lesson transport advances the grid and grades notes. The Shruti drone
+/// and audible metronome can run independently. Live listening and microphone
+/// coaching share capture but use separate pitch windows.
 class StudioController extends ChangeNotifier {
+  static const minBpm = 60;
+  static const maxBpm = 200;
+  static const bpmIncrement = 10;
+
   StudioController({
     required this.catalog,
     this._audio,
     this._pitchSource,
+    this._metronome,
     math.Random? random,
   }) : _random = random ?? math.Random() {
     _lessons = catalog.lessons.isEmpty
@@ -76,26 +87,26 @@ class StudioController extends ChangeNotifier {
   ShrutiPitch _shruti = kDefaultShruti;
   ShrutiPitch get shruti => _shruti;
 
-  double _fineTuneCents = 0;
-  double get fineTuneCents => _fineTuneCents;
-
-  double get saHz =>
-      _shruti.frequencyHz * math.pow(2.0, _fineTuneCents / 1200.0);
+  double get saHz => _shruti.frequencyHz;
 
   KaalamSpeed _kaalam = kKaalamOptions.first;
   KaalamSpeed get kaalam => _kaalam;
 
-  int _bpm = 68;
+  int _bpm = minBpm;
   int get bpm => _bpm;
 
-  void selectShruti(ShrutiPitch shruti) {
-    _shruti = shruti;
-    _notify();
-    _syncDrone();
-  }
+  MetronomeAudio? _metronome;
+  StreamSubscription<bool>? _metronomeSubscription;
+  Future<void>? _metronomeSync;
+  bool _metronomeOn = false;
+  bool get metronomeOn => _metronomeOn;
+  bool get canUseMetronome => _metronome != null || MetronomeAudio.isSupported;
 
-  void setFineTune(double cents) {
-    _fineTuneCents = cents.clamp(-50.0, 50.0);
+  void selectShruti(ShrutiPitch shruti) {
+    if (_shruti == shruti) return;
+    _shruti = shruti;
+    _resetLivePitch();
+    _stepFrequencies.clear();
     _notify();
     _syncDrone();
   }
@@ -106,10 +117,71 @@ class StudioController extends ChangeNotifier {
     _notify();
   }
 
-  /// A running transport picks up the new tempo at its next step.
+  /// Updates the audible metronome immediately and the lesson at a step boundary.
   void setBpm(int bpm) {
-    _bpm = bpm.clamp(40, 140);
+    final bounded = bpm.clamp(minBpm, maxBpm);
+    final next = (bounded / bpmIncrement).round() * bpmIncrement;
+    if (next == _bpm) return;
+    _bpm = next;
+    if (_metronomeOn) _syncMetronome();
     _notify();
+  }
+
+  void toggleMetronome() {
+    _metronomeOn = !_metronomeOn;
+    _syncMetronome();
+    _notify();
+  }
+
+  void _syncMetronome() {
+    // Serialize starts, stops, and tempo changes so two actions cannot compete
+    // for the same player while it is loading a loop.
+    if (_metronomeSync != null) return;
+    _metronomeSync = _applyMetronome().whenComplete(
+      () => _metronomeSync = null,
+    );
+  }
+
+  Future<void> _applyMetronome() async {
+    try {
+      final metronome = _metronome ??= MetronomeAudio();
+      _metronomeSubscription ??= metronome.playing.listen(
+        (playing) {
+          // A tempo change can pause playback while replacing the loop. Outside
+          // that transition, let system media controls update the UI.
+          if (_disposed || _metronomeSync != null || playing == _metronomeOn) {
+            return;
+          }
+          _metronomeOn = playing;
+          _notify();
+        },
+        onError: (Object error, StackTrace stack) {
+          _handleMetronomeError(error, stack);
+          _syncMetronome();
+        },
+      );
+
+      // Apply the latest request if BPM or play state changed during loading.
+      int? requested;
+      do {
+        requested = _metronomeOn ? _bpm : null;
+        if (requested == null) {
+          await metronome.stop();
+        } else {
+          await metronome.play(requested, volume: practiceVolume);
+        }
+      } while (!_disposed && requested != (_metronomeOn ? _bpm : null));
+    } catch (error, stack) {
+      _handleMetronomeError(error, stack);
+    }
+  }
+
+  void _handleMetronomeError(Object error, StackTrace stack) {
+    debugPrint('Metronome playback failed: $error\n$stack');
+    if (_disposed) return;
+    _metronomeOn = false;
+    _notify();
+    onNotice?.call('Unable to play metronome: $error');
   }
 
   // ---------------------------------------------------------------------------
@@ -135,7 +207,22 @@ class StudioController extends ChangeNotifier {
   Map<int, StepPitchEvaluation> get evaluations =>
       Map.unmodifiable(_evaluations);
 
-  SwaraIdentifier get identifier => SwaraIdentifier(saHz: saHz, scale: _scale);
+  double _pitchTolerancePercent = SwaraIdentifier.defaultTolerancePercent;
+  double get pitchTolerancePercent => _pitchTolerancePercent;
+
+  /// Changes how new notes are graded without rewriting earlier results.
+  void setPitchTolerancePercent(double percent) {
+    final next = percent.clamp(0.0, SwaraIdentifier.maxTolerancePercent);
+    if (next == _pitchTolerancePercent) return;
+    _pitchTolerancePercent = next;
+    _notify();
+  }
+
+  SwaraIdentifier get identifier => SwaraIdentifier(
+    saHz: saHz,
+    scale: _scale,
+    tolerancePercent: pitchTolerancePercent,
+  );
 
   /// Selecting a lesson also switches the session to the lesson's raga.
   void selectLesson(CarnaticLesson lesson) {
@@ -162,6 +249,7 @@ class StudioController extends ChangeNotifier {
   void _setRaga(Raga raga) {
     _raga = raga;
     _scale = catalog.scaleFor(raga);
+    _resetLivePitch();
   }
 
   /// Loads the arohanam and avarohanam of the session raga as a lesson.
@@ -251,11 +339,25 @@ class StudioController extends ChangeNotifier {
   void setChannelLevel(DroneChannel channel, double level) =>
       updateDrone(_drone.withLevel(channel, level));
 
-  void setDroneVolume(double volume) =>
-      updateDrone(_drone.copyWith(volume: volume));
+  double get practiceVolume => _drone.volume;
 
-  void setDroneInstrument(SwaraInstrument instrument) =>
-      updateDrone(_drone.copyWith(instrument: instrument));
+  void setPracticeVolume(double volume) {
+    final next = volume.clamp(0.0, 1.0);
+    if (next == practiceVolume) return;
+    updateDrone(_drone.copyWith(volume: next));
+    unawaited(
+      _metronome?.setVolume(next).catchError((Object error, StackTrace stack) {
+        debugPrint('Metronome volume update failed: $error\n$stack');
+        if (!_disposed) onNotice?.call('Unable to adjust metronome volume.');
+      }),
+    );
+  }
+
+  void setDroneInstrument(SwaraInstrument instrument) => updateDrone(
+    _drone.mode == DroneMode.pureSingleNote
+        ? _drone.copyWith(singleNoteInstrument: instrument)
+        : _drone.copyWith(instrument: instrument),
+  );
 
   void applyDronePreset(DronePreset preset) => updateDrone(
     _drone.copyWith(mode: DroneMode.multiNoteChord, mix: preset.mix),
@@ -381,6 +483,8 @@ class StudioController extends ChangeNotifier {
 
     void tick() {
       if (_disposed) return;
+      // The window that just closed belongs to the previous cell. Grade it
+      // before advancing the cursor, including the final cell in the lesson.
       if (mode == TransportMode.coaching &&
           _coachInput == CoachInput.microphone &&
           cursor > 0) {
@@ -390,8 +494,8 @@ class StudioController extends ChangeNotifier {
         stopTransport();
         return;
       }
-      // Rescheduling here rather than in setBpm keeps the transport moving
-      // while the tempo slider is dragged.
+      // Reference notes are scheduled through following karvai cells (holds).
+      // Keep those cells at the original tempo until that sustain ends.
       final nextStepIsKarvai =
           cursor < _steps.length && _steps[cursor].isKarvai;
       if (stepDuration != duration &&
@@ -417,6 +521,7 @@ class StudioController extends ChangeNotifier {
   }
 
   void stopTransport() {
+    // Invalidate reference and coaching starts still awaiting audio or permission.
     _transportGeneration++;
     _transportTimer?.cancel();
     _transportTimer = null;
@@ -440,7 +545,9 @@ class StudioController extends ChangeNotifier {
     final note = step.note;
     if (note == null) return;
     final frequency = note.frequencyFor(saHz);
-    pitchDisplay.value = PitchDisplay.reference(note, frequency);
+    if (!_isListening) {
+      pitchDisplay.value = PitchDisplay.reference(note, frequency);
+    }
     if (step.isKarvai) return;
 
     var sustain = 1;
@@ -451,6 +558,7 @@ class StudioController extends ChangeNotifier {
     try {
       audio.playNote(
         frequencyHz: frequency,
+        // Leave a small gap so consecutive notes have distinct attacks.
         duration: duration * (sustain * 0.94),
         instrument: _noteInstrument,
       );
@@ -466,7 +574,9 @@ class StudioController extends ChangeNotifier {
     if (note == null) return;
     final frequency = note.frequencyFor(saHz);
     _activeStepIndex = index;
-    pitchDisplay.value = PitchDisplay.reference(note, frequency);
+    if (!_isListening) {
+      pitchDisplay.value = PitchDisplay.reference(note, frequency);
+    }
     _notify();
     if (isTransportRunning || !audio.isSupported) return;
     try {
@@ -497,6 +607,7 @@ class StudioController extends ChangeNotifier {
     final expected = _steps[index].note;
     if (expected == null) return;
     final offset = _simulatedCentOffset(index, expected);
+    // There are 1200 cents in an octave; adding an octave doubles frequency.
     final sungHz = expected.frequencyFor(saHz) * math.pow(2.0, offset / 1200.0);
     final id = identifier;
     _evaluations[index] = id.evaluate(
@@ -504,7 +615,9 @@ class StudioController extends ChangeNotifier {
       expected: expected,
       sungFrequencyHz: sungHz,
     );
-    pitchDisplay.value = PitchDisplay.heard(id.identify(sungHz));
+    if (!_isListening) {
+      pitchDisplay.value = PitchDisplay.heard(id.identify(sungHz));
+    }
   }
 
   void _finaliseMicrophoneStep(int index) {
@@ -534,16 +647,29 @@ class StudioController extends ChangeNotifier {
   Future<bool>? _micStarting;
   final List<double> _recentFrequencies = [];
   int _silentFrames = 0;
+  static const _livePitchHold = Duration(milliseconds: 250);
+  SwaraNote? _candidate;
+  Duration _candidateTime = Duration.zero;
+
+  void _resetLivePitch() {
+    _recentFrequencies.clear();
+    _silentFrames = 0;
+    _candidate = null;
+    _candidateTime = Duration.zero;
+    pitchDisplay.value = _isListening || microphoneActive
+        ? PitchDisplay.listening
+        : PitchDisplay.idle;
+  }
 
   Future<void> toggleListening() async {
     if (_isListening) {
       _isListening = false;
       _releaseMicrophoneIfIdle();
-      pitchDisplay.value = PitchDisplay.idle;
       _notify();
       return;
     }
     _isListening = true;
+    _resetLivePitch();
     _notify();
     final acquired = await _acquireMicrophone();
     if (_disposed) return;
@@ -558,12 +684,14 @@ class StudioController extends ChangeNotifier {
       }
     } else {
       _isListening = false;
+      _resetLivePitch();
       _notify();
     }
   }
 
   Future<bool> _acquireMicrophone() {
     if (_micSubscription != null) return Future.value(true);
+    // Listening and coaching may ask for permission at the same time.
     return _micStarting ??= _startMicrophone().whenComplete(
       () => _micStarting = null,
     );
@@ -576,8 +704,6 @@ class StudioController extends ChangeNotifier {
         await pitchSource.stop();
         return false;
       }
-      _recentFrequencies.clear();
-      _silentFrames = 0;
       _micSubscription = readings.listen(
         _onReading,
         onError: (Object error) {
@@ -590,6 +716,7 @@ class StudioController extends ChangeNotifier {
           _notify();
         },
       );
+      _resetLivePitch();
       _notify();
       return true;
     } catch (error) {
@@ -606,6 +733,7 @@ class StudioController extends ChangeNotifier {
     final subscription = _micSubscription;
     if (subscription == null) return;
     _micSubscription = null;
+    _resetLivePitch();
     unawaited(subscription.cancel());
     unawaited(
       pitchSource.stop().catchError((Object error) {
@@ -617,7 +745,10 @@ class StudioController extends ChangeNotifier {
   void _onReading(PitchReading? reading) {
     if (_disposed) return;
     if (reading == null) {
-      if (++_silentFrames == 8) {
+      // Break the candidate's streak immediately but leave the last confirmed
+      // label up through brief gaps, such as a breath between notes.
+      _candidateTime = Duration.zero;
+      if (++_silentFrames == 15) {
         _recentFrequencies.clear();
         pitchDisplay.value = PitchDisplay.listening;
       }
@@ -626,13 +757,27 @@ class StudioController extends ChangeNotifier {
     _silentFrames = 0;
     _recentFrequencies.add(reading.frequencyHz);
     if (_recentFrequencies.length > 5) _recentFrequencies.removeAt(0);
+    // A short median rejects isolated detector jumps without averaging
+    // two different swaras into a pitch the singer never held.
     final sorted = [..._recentFrequencies]..sort();
     final smoothed = sorted[sorted.length ~/ 2];
-    pitchDisplay.value = PitchDisplay.heard(identifier.identify(smoothed));
+    final heard = identifier.identify(smoothed);
+    if (_candidate != heard.note) {
+      _candidate = heard.note;
+      _candidateTime = Duration.zero;
+    }
+    // Audio time avoids counting a delayed batch as either one instant or a gap.
+    _candidateTime += pitchSource.readingInterval;
+    if (_candidateTime >= _livePitchHold) {
+      pitchDisplay.value = PitchDisplay.heard(heard);
+      _candidateTime = Duration.zero;
+    }
 
     if (isCoaching &&
         _coachInput == CoachInput.microphone &&
         _activeStepIndex >= 0) {
+      // Use the raw readings for grading so the display's confirmation delay
+      // does not spill a previous note into the next lesson cell.
       _stepFrequencies.add(reading.frequencyHz);
     }
   }
@@ -653,6 +798,17 @@ class StudioController extends ChangeNotifier {
     _micSubscription = null;
     _disposeResource('Swara audio', _audio?.dispose());
     _disposeResource('Microphone', _pitchSource?.dispose());
+    unawaited(_metronomeSubscription?.cancel());
+    final metronome = _metronome;
+    if (metronome != null) {
+      // An in-flight tempo change may still be using the player.
+      _disposeResource(
+        'Metronome',
+        (_metronomeSync ?? Future<void>.value()).then(
+          (_) => metronome.dispose(),
+        ),
+      );
+    }
     pitchDisplay.dispose();
     super.dispose();
   }

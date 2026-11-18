@@ -74,18 +74,17 @@ class WebSwaraAudio implements SwaraAudio {
     final previous = _drone;
     final context = _context;
     if (previous == null || context == null) return;
-    final pluckedVoicesChanged =
-        sound.instrument.timbre.isPlucked &&
-        !_sameDroneVoices(previous.voices, sound.voices);
+    final voicesChanged = !_sameDroneVoices(previous.voices, sound.voices);
     _drone = sound;
     _droneBus!.gain.setTargetAtTime(sound.volume, context.currentTime, 0.03);
-    if (previous.instrument != sound.instrument || pluckedVoicesChanged) {
+    final plucked = sound.instrument.timbre.isPlucked;
+    if (previous.instrument != sound.instrument || (plucked && voicesChanged)) {
       _stopDroneVoices(_fadeSeconds);
       _beginDrone(sound);
-    } else if (!sound.instrument.timbre.isPlucked) {
+    } else if (voicesChanged) {
       _syncSustainedDrone(sound);
     }
-    // Master-volume-only changes keep the current pluck cycle.
+    // Master volume changes leave the individual voice envelopes alone.
   }
 
   static bool _sameDroneVoices(List<DroneVoice> a, List<DroneVoice> b) {
@@ -149,6 +148,8 @@ class WebSwaraAudio implements SwaraAudio {
     if (order.isEmpty) return;
 
     final timbre = sound.instrument.timbre;
+    // Dart wakes the scheduler; Web Audio starts each oscillator at the
+    // requested audio-clock time, not at the moment the Dart timer fires.
     while (_nextPluckTime < now + _lookaheadSeconds) {
       if (_pluckIndex >= order.length) _pluckIndex = 0;
       final voice = order[_pluckIndex++];
@@ -270,6 +271,7 @@ class WebSwaraAudio implements SwaraAudio {
         : [0.0, timbre.detuneCents];
     final peakScale = timbre.peakGain / math.sqrt(detunes.length);
 
+    // Ramp up from silence so starting mid-wave doesn't click.
     final envelope = context.createGain();
     envelope.gain.setValueAtTime(0, when);
     envelope.gain.linearRampToValueAtTime(
@@ -278,6 +280,8 @@ class WebSwaraAudio implements SwaraAudio {
     );
     envelope.connect(destination);
 
+    // Lowering the cutoff after the attack keeps the initial strike brighter
+    // than the ringing tail without changing the note's fundamental.
     final filter = context.createBiquadFilter()..type = 'lowpass';
     filter.Q.value = 0.5;
     filter.frequency.setValueAtTime(timbre.filterStartHz, when);
@@ -308,6 +312,8 @@ class WebSwaraAudio implements SwaraAudio {
     web.AudioContext context,
     InstrumentTimbre timbre,
   ) {
+    // Fourier bin zero is the DC offset. The following sine coefficients
+    // weight the fundamental and its integer multiples to color the tone.
     final real = <JSNumber>[0.toJS];
     final imag = <JSNumber>[0.toJS];
     for (final amplitude in timbre.harmonics) {
@@ -338,6 +344,9 @@ class WebSwaraAudio implements SwaraAudio {
   }
 }
 
+/// Web Audio nodes for one synthesized note, including any detuned oscillator.
+///
+/// Tracks the time at which the voice stops so expired nodes can be disconnected.
 class _Voice {
   _Voice(this.oscillators, this.filter, this.envelope, this.peakScale);
 

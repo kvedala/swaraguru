@@ -29,7 +29,7 @@ class ShrutiPitch {
   @override
   int get hashCode => id.hashCode;
 
-  String get label => id;
+  String get label => id == 'C' ? 'C (B#)' : id;
 
   String get kattaiName {
     final whole = kattai.truncate();

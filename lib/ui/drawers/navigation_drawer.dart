@@ -13,19 +13,19 @@ extension StudioScreenInfo on StudioScreen {
   String get title => switch (this) {
     StudioScreen.varisai => 'Varisai Studio',
     StudioScreen.pitchCoach => 'Live Pitch Coach',
-    StudioScreen.droneLab => 'Shruti Drone Lab',
+    StudioScreen.droneLab => 'Practice Audio',
   };
 
   String get drawerTitle => switch (this) {
     StudioScreen.varisai => 'Varisai Studio (Adi Tala Grid)',
     StudioScreen.pitchCoach => 'Live Vocal Pitch Coach',
-    StudioScreen.droneLab => 'Shruti Drone Lab (Pure / Multi)',
+    StudioScreen.droneLab => 'Practice Audio',
   };
 
   String get shortTitle => switch (this) {
     StudioScreen.varisai => 'Studio',
     StudioScreen.pitchCoach => 'Pitch Coach',
-    StudioScreen.droneLab => 'Shruti Box',
+    StudioScreen.droneLab => 'Audio',
   };
 
   IconData get icon => switch (this) {

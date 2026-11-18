@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../models/models.dart';
+import '../../pitch/swara_identifier.dart';
 import '../../studio/pitch_display.dart';
 import '../../studio/studio_controller.dart';
 import '../../theme/swara_theme.dart';
@@ -43,10 +44,7 @@ class _LiveTunerCard extends StatelessWidget {
           children: [
             ScreenHeader(
               title: 'Listen & Identify Swara',
-              subtitle:
-                  'Sing or play any note: SwaraGuru names the nearest '
-                  'swarasthana of ${controller.raga.name} relative to Sa '
-                  '(${controller.saHz.toStringAsFixed(2)} Hz).',
+              subtitle: 'Hold a note to see the nearest swara relative to Sa.',
               trailing: FilledButton.icon(
                 onPressed: controller.toggleListening,
                 style: FilledButton.styleFrom(
@@ -66,73 +64,47 @@ class _LiveTunerCard extends StatelessWidget {
               valueListenable: controller.pitchDisplay,
               builder: (context, pitch, _) {
                 final heard = pitch.source == PitchDisplaySource.voice;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                if (!heard || !listening) {
+                  return Text(
+                    listening ? PitchDisplay.listening.title : 'Microphone off',
+                  );
+                }
+                return Row(
                   children: [
-                    Row(
-                      children: [
-                        SwaraBadge(
-                          label: pitch.label,
-                          inRaga: pitch.inRaga,
-                          size: 76,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                pitch.title,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                pitch.hasPitch
-                                    ? '${pitch.frequencyHz.toStringAsFixed(1)} Hz'
-                                          '${heard ? ' • ${formatCents(pitch.centsOff)} cents' : ''}'
-                                    : listening
-                                    ? 'Waiting for a steady pitch…'
-                                    : 'Press "Listen & Identify" to use '
-                                          'the microphone.',
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: SwaraColors.cyanWave,
-                                ),
-                              ),
-                              if (heard && !pitch.inRaga)
-                                Text(
-                                  'Not part of ${controller.raga.name}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: SwaraColors.warmAmber,
-                                  ),
-                                ),
-                            ],
+                    SwaraBadge(label: pitch.label, inRaga: pitch.inRaga),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            pitch.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                          Text('${pitch.frequencyHz.toStringAsFixed(1)} Hz'),
+                          if (!pitch.inRaga)
+                            Text('Not part of ${controller.raga.name}'),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    CentsMeter(centsOff: pitch.centsOff, active: heard),
                   ],
                 );
               },
             ),
-            const SizedBox(height: 8),
-            const Row(
+            const ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text('How note detection works'),
               children: [
-                Icon(Icons.headphones_rounded, size: 16, color: Colors.white54),
-                SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    'Use headphones so the drone and reference swaras do not '
-                    'leak into the microphone. Audio is analysed on-device '
-                    'and never recorded or uploaded.',
-                    style: TextStyle(fontSize: 11, color: Colors.white54),
-                  ),
+                Text(
+                  'The microphone listens for how fast your voice vibrates. '
+                  'The app compares that pitch with the swaras above and below '
+                  'your chosen Sa. It waits for about a quarter second of '
+                  'consistent readings before showing a note, so brief slides '
+                  'do not immediately change the label. Use headphones so the '
+                  'mic does not pick up the drone. Audio stays on your device.',
                 ),
               ],
             ),
@@ -162,10 +134,8 @@ class _CoachingCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ScreenHeader(
-              title: 'Real-Time Vocal Pitch Analyzer & Mistake Coach',
-              subtitle:
-                  'Sing "${controller.activeLesson.title}" with the swara grid '
-                  'and get flagged for Apasruti drift or wrong Swarasthanas.',
+              title: 'Sing & Match',
+              subtitle: 'Practice ${controller.activeLesson.title}.',
               trailing: FilledButton.icon(
                 onPressed: coaching
                     ? controller.stopTransport
@@ -181,48 +151,44 @@ class _CoachingCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            const ControlLabel('Coach Input'),
-            const SizedBox(height: 8),
-            SegmentedButton<CoachInput>(
-              showSelectedIcon: false,
-              segments: [
+            DropdownButton<CoachInput>(
+              value: controller.coachInput,
+              items: [
                 for (final input in CoachInput.values)
-                  ButtonSegment(
-                    value: input,
-                    label: Text(input.label),
-                    icon: Icon(
-                      input == CoachInput.microphone
-                          ? Icons.mic_rounded
-                          : Icons.smart_toy_outlined,
-                      size: 18,
-                    ),
-                  ),
+                  DropdownMenuItem(value: input, child: Text(input.label)),
               ],
-              selected: {controller.coachInput},
-              onSelectionChanged: (selection) =>
-                  controller.setCoachInput(selection.first),
+              onChanged: (input) {
+                if (input != null) controller.setCoachInput(input);
+              },
             ),
-            const SizedBox(height: 6),
-            Text(
-              controller.coachInput.description,
-              style: const TextStyle(fontSize: 11, color: Colors.white60),
+            ControlLabel(
+              'Pitch tolerance: ${controller.pitchTolerancePercent.toStringAsFixed(1)}%',
             ),
-            const Divider(color: SwaraColors.borderGold, height: 24),
-            EvaluationSummaryBanner(controller: controller),
-            const SizedBox(height: 14),
-            const SectionLabel('IDENTIFIED SWARASTHANA & APASRUTI MISTAKES'),
-            const SizedBox(height: 8),
-            if (mistakes.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  'No mistakes logged yet. Press "Start Sing & Match" to '
-                  'evaluate your singing against the active Varisai.',
-                  style: TextStyle(fontSize: 12, color: Colors.white60),
-                ),
-              )
-            else
-              for (final mistake in mistakes) _MistakeTile(mistake: mistake),
+            Semantics(
+              label: 'Pitch matching tolerance',
+              child: Slider(
+                value: controller.pitchTolerancePercent,
+                max: SwaraIdentifier.maxTolerancePercent,
+                divisions: 30,
+                label:
+                    '${controller.pitchTolerancePercent.toStringAsFixed(1)}%',
+                onChanged: controller.setPitchTolerancePercent,
+              ),
+            ),
+            const Text(
+              'Allowed difference above or below the target. Applies to new notes.',
+              style: TextStyle(fontSize: 12, color: Colors.white70),
+            ),
+            if (controller.evaluations.isNotEmpty)
+              EvaluationSummaryBanner(controller: controller, showPitch: false),
+            if (mistakes.isNotEmpty)
+              ExpansionTile(
+                title: Text('Notes to review (${mistakes.length})'),
+                children: [
+                  for (final mistake in mistakes)
+                    _MistakeTile(mistake: mistake),
+                ],
+              ),
           ],
         ),
       ),

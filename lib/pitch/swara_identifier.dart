@@ -4,18 +4,28 @@ import '../models/pitch_evaluation.dart';
 import '../models/raga.dart';
 import '../models/swara.dart';
 
-/// Deviation in cents tolerated before a swara is marked apasruti.
-const double kApasrutiToleranceCents = 25;
-
-/// Names detected frequencies as swarasthanas relative to the current Sa.
+/// Names frequencies relative to Sa and grades them against expected swaras.
+///
+/// Live naming chooses the nearest pitch position using the raga's spelling.
+/// Grading accepts the expected swara within the configured percentage window.
 class SwaraIdentifier {
-  const SwaraIdentifier({required this.saHz, required this.scale});
+  const SwaraIdentifier({
+    required this.saHz,
+    required this.scale,
+    this.tolerancePercent = defaultTolerancePercent,
+  });
+
+  static const defaultTolerancePercent = 1.5;
+  static const maxTolerancePercent = 3.0;
 
   final double saHz;
   final RagaScale scale;
+  final double tolerancePercent;
 
   /// Finds the nearest swarasthana to [frequencyHz] in any octave.
   IdentifiedSwara identify(double frequencyHz) {
+    // On a logarithmic scale, octave jumps add a constant 1200. Use the
+    // equal-tempered position as a starting point, then compare actual ratios.
     final cents = centsForRatio(frequencyHz / saHz);
     final estimate = (cents / 100).round();
 
@@ -57,32 +67,44 @@ class SwaraIdentifier {
     }
 
     final heard = identify(sungFrequencyHz);
-    final cents = heard.centsOff.round();
     final samePosition = heard.note.swara.position == expected.swara.position;
+    // Find the closest octave of the target independently of the detected note.
+    // A wide window can extend past the midpoint to a neighboring swara.
+    final octaveShift = (math.log(sungFrequencyHz / expectedHz) / math.ln2)
+        .round();
+    final target = SwaraNote(expected.swara, expected.octave + octaveShift);
+    final targetHz = target.frequencyFor(saHz);
+    final errorPercent = 100 * (sungFrequencyHz - targetHz).abs() / targetHz;
+    // Include the boundary despite floating-point rounding in the ratios.
+    final matches = errorPercent <= tolerancePercent + 1e-9;
+    final offset = matches
+        ? centsForRatio(sungFrequencyHz / targetHz)
+        : heard.centsOff;
 
-    final (status, message) = !samePosition
+    final (status, message) = matches
+        ? (NoteMatchStatus.match, 'Matched within pitch tolerance')
+        : !samePosition
         ? (
             NoteMatchStatus.wrongSwara,
             'Sang ${heard.note.label} (${heard.note.fullName}) instead of '
                 '${expected.label}',
           )
-        : cents.abs() > kApasrutiToleranceCents
-        ? (
+        : (
             NoteMatchStatus.apasruti,
-            'Apasruti: ${cents > 0 ? '+$cents' : '$cents'} cents drift on '
-                '${expected.label}',
-          )
-        : (NoteMatchStatus.match, 'Sruti Suddham (Exact Swarasthana)');
+            '${expected.label} was a little too ${offset > 0 ? 'high' : 'low'}.',
+          );
 
     return StepPitchEvaluation(
       stepIndex: stepIndex,
       expected: expected,
       expectedFreqHz: expectedHz,
-      sung: samePosition
+      sung: matches
+          ? target
+          : samePosition
           ? SwaraNote(expected.swara, heard.note.octave)
           : heard.note,
       sungFreqHz: sungFrequencyHz,
-      centDeviation: cents,
+      centDeviation: offset.round(),
       status: status,
       message: message,
     );
@@ -98,6 +120,7 @@ double? stablePitch(List<double> frequencies) {
       : List.of(frequencies);
   settled.sort();
   final middle = settled.length ~/ 2;
+  // The geometric mean is the midpoint on the logarithmic pitch scale.
   return settled.length.isOdd
       ? settled[middle]
       : math.sqrt(settled[middle - 1] * settled[middle]);

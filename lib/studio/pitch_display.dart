@@ -4,13 +4,15 @@ import '../models/swara.dart';
 /// Where the live pitch readout's current value came from.
 enum PitchDisplaySource { idle, reference, voice }
 
-/// Snapshot shown by the live swara readout and tuner.
+/// Immutable readout state for a reference note, a detected note, or no pitch.
+///
+/// Display state is separate from step evaluations so settling the visible
+/// note does not delay lesson grading.
 class PitchDisplay {
   const PitchDisplay({
     required this.label,
     required this.title,
     this.frequencyHz = 0,
-    this.centsOff = 0,
     this.inRaga = true,
     this.source = PitchDisplaySource.idle,
   });
@@ -27,7 +29,6 @@ class PitchDisplay {
     label: swara.note.label,
     title: swara.note.fullName,
     frequencyHz: swara.frequencyHz,
-    centsOff: swara.centsOff,
     inRaga: swara.inRaga,
     source: PitchDisplaySource.voice,
   );
@@ -36,13 +37,12 @@ class PitchDisplay {
 
   static const listening = PitchDisplay(
     label: '…',
-    title: 'Listening — sing or play a steady swara',
+    title: 'Waiting for a steady note…',
   );
 
   final String label;
   final String title;
   final double frequencyHz;
-  final double centsOff;
   final bool inRaga;
   final PitchDisplaySource source;
 

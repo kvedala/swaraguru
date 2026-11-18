@@ -34,7 +34,7 @@ void main() {
   group('Shruti pitches', () {
     test('match the iSruthi base-Sa table', () {
       expect(
-        {for (final s in kShrutiPitches) s.label: s.frequencyHz},
+        {for (final s in kShrutiPitches) s.id: s.frequencyHz},
         {
           'A': 110.00,
           'A#': 116.54,
@@ -119,6 +119,7 @@ void main() {
       final settings = DroneSettings(
         mode: DroneMode.pureSingleNote,
         pureChannel: DroneChannel.ni3,
+        singleNoteInstrument: SwaraInstrument.harmonium,
         mix: DronePreset.ni.mix,
         volume: 0.4,
         instrument: SwaraInstrument.piano,
@@ -128,6 +129,7 @@ void main() {
       );
       expect(copy.mode, settings.mode);
       expect(copy.pureChannel, settings.pureChannel);
+      expect(copy.soundFor(140).instrument, SwaraInstrument.harmonium);
       expect(copy.mix, settings.mix);
       expect(copy.volume, settings.volume);
       expect(copy.instrument, settings.instrument);

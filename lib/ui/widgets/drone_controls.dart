@@ -15,8 +15,7 @@ const List<DroneChannel> _kPureChannels = [
   DroneChannel.taraSa,
 ];
 
-/// Shruti box configuration: instrument, mode, tuning preset, channel mix,
-/// volume and fine tuning.
+/// Shruti box configuration: instrument, mode, tuning preset and channel mix.
 class DroneControls extends StatelessWidget {
   const DroneControls({super.key, required this.controller});
 
@@ -29,30 +28,11 @@ class DroneControls extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ControlLabel('Drone Instrument'),
-        const SizedBox(height: 8),
-        InstrumentSelector(
-          selected: drone.instrument,
-          onChanged: controller.setDroneInstrument,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          drone.instrument.description,
-          style: const TextStyle(fontSize: 11, color: Colors.white60),
-        ),
-        const SizedBox(height: 16),
         SegmentedButton<DroneMode>(
-          segments: const [
-            ButtonSegment(
-              value: DroneMode.pureSingleNote,
-              icon: Icon(Icons.looks_one_rounded),
-              label: Text('Pure Single Note'),
-            ),
-            ButtonSegment(
-              value: DroneMode.multiNoteChord,
-              icon: Icon(Icons.graphic_eq_rounded),
-              label: Text('Multiple Notes'),
-            ),
+          showSelectedIcon: false,
+          segments: [
+            for (final mode in DroneMode.values)
+              ButtonSegment(value: mode, label: Text(mode.label)),
           ],
           selected: {drone.mode},
           onSelectionChanged: (selection) =>
@@ -60,7 +40,22 @@ class DroneControls extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         if (drone.mode == DroneMode.pureSingleNote) ...[
-          const ControlLabel('Select Isolated Pure Reference Swara:'),
+          const ControlLabel('Sound'),
+          DropdownButton<SwaraInstrument>(
+            value: drone.singleNoteInstrument,
+            items: [
+              for (final instrument in SwaraInstrument.values)
+                DropdownMenuItem(
+                  value: instrument,
+                  child: Text(instrument.label),
+                ),
+            ],
+            onChanged: (instrument) {
+              if (instrument != null) controller.setDroneInstrument(instrument);
+            },
+          ),
+          const SizedBox(height: 12),
+          const ControlLabel('Reference swara'),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -78,42 +73,32 @@ class DroneControls extends StatelessWidget {
             ],
           ),
         ] else ...[
+          const ControlLabel('Drone instrument'),
+          const SizedBox(height: 8),
+          InstrumentSelector(
+            selected: drone.instrument,
+            onChanged: controller.setDroneInstrument,
+          ),
+          const SizedBox(height: 12),
           const ControlLabel('Tampura Tuning'),
           const SizedBox(height: 8),
           _PresetChips(controller: controller),
           const SizedBox(height: 12),
-          const ControlLabel('Multi-Note Tampura Channels (Toggle & Mix):'),
-          const SizedBox(height: 8),
-          for (final channel in DroneChannel.values)
-            _ChannelMixer(
-              channel: channel,
-              level: drone.levelOf(channel),
-              frequencyHz: channel.note.frequencyFor(saHz),
-              onChanged: (level) => controller.setChannelLevel(channel, level),
-            ),
+          ExpansionTile(
+            title: const Text('Channel mix'),
+            tilePadding: EdgeInsets.zero,
+            children: [
+              for (final channel in DroneChannel.values)
+                _ChannelMixer(
+                  channel: channel,
+                  level: drone.levelOf(channel),
+                  frequencyHz: channel.note.frequencyFor(saHz),
+                  onChanged: (level) =>
+                      controller.setChannelLevel(channel, level),
+                ),
+            ],
+          ),
         ],
-        const SizedBox(height: 12),
-        const ControlLabel('Master Shruti Volume & Fine Tuning (Cents)'),
-        Slider(
-          value: drone.volume,
-          min: 0.05,
-          max: 1.0,
-          label: 'Volume ${(100 * drone.volume).round()}%',
-          onChanged: controller.setDroneVolume,
-        ),
-        Slider(
-          value: controller.fineTuneCents,
-          min: -50,
-          max: 50,
-          divisions: 100,
-          label: '${controller.fineTuneCents.round()} cents',
-          onChanged: controller.setFineTune,
-        ),
-        Text(
-          'Sa = ${saHz.toStringAsFixed(2)} Hz '
-          '(${controller.fineTuneCents.round()} cents)',
-          style: const TextStyle(fontSize: 11, color: SwaraColors.cyanWave),
-        ),
       ],
     );
   }

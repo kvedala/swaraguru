@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../models/models.dart';
 import '../../studio/studio_controller.dart';
 import '../../theme/swara_theme.dart';
+import '../widgets/bpm_stepper.dart';
 import '../widgets/evaluation_summary.dart';
 import '../widgets/instrument_selector.dart';
 import '../widgets/labels.dart';
@@ -26,150 +27,58 @@ class VarisaiStudioScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SaAndTempoCard(controller: controller),
-        const SizedBox(height: 16),
         _RagaAndInstrumentCard(controller: controller),
         const SizedBox(height: 16),
         _LessonGridCard(
           controller: controller,
           onAddCustomLesson: onAddCustomLesson,
         ),
-        const SizedBox(height: 16),
-        EvaluationSummaryBanner(controller: controller),
+        if (controller.isTransportRunning ||
+            controller.activeStepIndex >= 0 ||
+            controller.evaluations.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          EvaluationSummaryBanner(controller: controller),
+        ],
       ],
     );
   }
 }
 
-class _SaAndTempoCard extends StatelessWidget {
-  const _SaAndTempoCard({required this.controller});
+class _TempoControls extends StatelessWidget {
+  const _TempoControls({required this.controller});
 
   final StudioController controller;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SectionLabel(
-              'SELECT BASE "SA" (A, A#, B, C, C# … G#) & TEMPO (KAALAM 1–4)',
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final shruti in kShrutiPitches)
-                  _ShrutiChip(
-                    shruti: shruti,
-                    selected: shruti == controller.shruti,
-                    onSelected: () => controller.selectShruti(shruti),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                for (final kaalam in kKaalamOptions)
-                  _KaalamChip(
-                    kaalam: kaalam,
-                    selected: kaalam.kaalam == controller.kaalam.kaalam,
-                    onSelected: () => controller.selectKaalam(kaalam),
-                  ),
-                const SizedBox(width: 12),
-                Text(
-                  'Laya BPM: ${controller.bpm}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: SwaraColors.brightGold,
-                  ),
+    return Wrap(
+      spacing: 16,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        BpmStepper(controller: controller),
+        PopupMenuButton<KaalamSpeed>(
+          tooltip: 'Select kaalam (swaras per beat)',
+          initialValue: controller.kaalam,
+          onSelected: controller.selectKaalam,
+          itemBuilder: (_) => [
+            for (final speed in kKaalamOptions)
+              PopupMenuItem(
+                value: speed,
+                child: Text(
+                  'Kaalam ${speed.kaalam}: ${speed.swarasPerBeat} swaras/beat',
                 ),
-                SizedBox(
-                  width: 150,
-                  child: Slider(
-                    value: controller.bpm.toDouble(),
-                    min: 40,
-                    max: 140,
-                    divisions: 100,
-                    label: '${controller.bpm} BPM',
-                    onChanged: (value) => controller.setBpm(value.round()),
-                  ),
-                ),
-              ],
-            ),
+              ),
           ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Kaalam ${controller.kaalam.kaalam}'),
+              const Icon(Icons.arrow_drop_down),
+            ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class _ShrutiChip extends StatelessWidget {
-  const _ShrutiChip({
-    required this.shruti,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final ShrutiPitch shruti;
-  final bool selected;
-  final VoidCallback onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      tooltip: '${shruti.kattaiName} • ${shruti.frequencyHz} Hz',
-      label: Text(
-        '${shruti.label} • ${shruti.kattaiName} '
-        '(${shruti.frequencyHz.toStringAsFixed(2)} Hz)',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: selected ? SwaraColors.midnightBg : Colors.white,
-        ),
-      ),
-      selected: selected,
-      selectedColor: SwaraColors.royalGold,
-      backgroundColor: SwaraColors.midnightBg,
-      onSelected: (_) => onSelected(),
-    );
-  }
-}
-
-class _KaalamChip extends StatelessWidget {
-  const _KaalamChip({
-    required this.kaalam,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final KaalamSpeed kaalam;
-  final bool selected;
-  final VoidCallback onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(
-        'Tempo ${kaalam.kaalam} • ${kaalam.sanskritName} '
-        '(${kaalam.swarasPerBeat}x)',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: selected ? SwaraColors.midnightBg : SwaraColors.cyanWave,
-        ),
-      ),
-      selected: selected,
-      selectedColor: SwaraColors.cyanWave,
-      backgroundColor: SwaraColors.midnightBg,
-      onSelected: (_) => onSelected(),
+      ],
     );
   }
 }
@@ -182,46 +91,47 @@ class _RagaAndInstrumentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: LayoutBuilder(
-          builder: (context, constraints) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SectionLabel('SESSION RAGA & VARISAI INSTRUMENT'),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  RagaSelector(
-                    ragas: controller.catalog.sortedRagas,
-                    selected: controller.raga,
-                    width: constraints.maxWidth < 340
-                        ? constraints.maxWidth
-                        : 320,
-                    onSelected: controller.selectRaga,
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: controller.practiceRagaScale,
-                    icon: const Icon(Icons.stairs_rounded, size: 18),
-                    label: const Text('Practice Raga Scale'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              RagaScaleSummary(raga: controller.raga),
-              const SizedBox(height: 16),
-              const ControlLabel('Varisai Playback Instrument'),
-              const SizedBox(height: 8),
-              InstrumentSelector(
-                selected: controller.noteInstrument,
-                onChanged: controller.setNoteInstrument,
-              ),
-            ],
+      child: ExpansionTile(
+        title: const Text('Practice settings'),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    RagaSelector(
+                      ragas: controller.catalog.sortedRagas,
+                      selected: controller.raga,
+                      width: constraints.maxWidth < 340
+                          ? constraints.maxWidth
+                          : 320,
+                      onSelected: controller.selectRaga,
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: controller.practiceRagaScale,
+                      icon: const Icon(Icons.stairs_rounded, size: 18),
+                      label: const Text('Practice Raga Scale'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                RagaScaleSummary(raga: controller.raga),
+                const SizedBox(height: 16),
+                const ControlLabel('Playback instrument'),
+                const SizedBox(height: 8),
+                InstrumentSelector(
+                  selected: controller.noteInstrument,
+                  onChanged: controller.setNoteInstrument,
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -270,8 +180,7 @@ class _LessonGridCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Raga: ${raga.name} • ${lesson.tala} • '
-                      '${controller.kaalam.name}',
+                      '${raga.name} • ${lesson.tala}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.white70,
@@ -328,12 +237,10 @@ class _LessonGridCard extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 6),
-            Text(
-              'Sing & Match listens with: ${controller.coachInput.label} '
-              '(change it in Live Pitch Coach)',
-              style: const TextStyle(fontSize: 11, color: Colors.white54),
-            ),
+            if (controller.coachInput != CoachInput.microphone)
+              Text('Coach input: ${controller.coachInput.label}'),
+            const SizedBox(height: 8),
+            _TempoControls(controller: controller),
             const SizedBox(height: 14),
             AdiTalaBeatStrip(
               activeBeat: running ? controller.activeBeat : null,

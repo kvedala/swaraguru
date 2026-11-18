@@ -4,7 +4,10 @@ import 'swara_audio_stub.dart'
     if (dart.library.js_interop) 'swara_audio_web.dart'
     as platform;
 
-/// Sound output for the Shruti drone and swara playback.
+/// Platform interface for the Shruti drone and synthesized swara playback.
+///
+/// Drones and lesson notes have independent lifecycles. The background click
+/// uses a separate player because it does not need live synthesis.
 abstract class SwaraAudio {
   factory SwaraAudio() => platform.createSwaraAudio();
 
