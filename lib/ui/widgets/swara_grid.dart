@@ -146,7 +146,11 @@ class SwaraCell extends StatelessWidget {
         case NoteMatchStatus.match:
           detail = 'Matched';
         case NoteMatchStatus.apasruti:
-          detail = evaluation.centDeviation > 0 ? 'Too high' : 'Too low';
+          detail = evaluation.centDeviation == 0
+              ? 'Pitch drift'
+              : evaluation.centDeviation > 0
+              ? 'Too high'
+              : 'Too low';
       }
     } else if (invalid) {
       detail = 'Unknown';
