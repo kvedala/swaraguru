@@ -14,6 +14,7 @@ import 'screens/pitch_coach_screen.dart';
 import 'screens/varisai_studio_screen.dart';
 import 'widgets/hero_banner.dart';
 import 'widgets/logo_emblem.dart';
+import 'widgets/version_badge.dart';
 
 /// Responsive shell: bottom navigation on phones, a navigation rail on
 /// tablets and an extended rail on desktops.
@@ -172,6 +173,8 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
                     ],
                   )
                 : null,
+            floatingActionButton: const WebVersionBadge(),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           );
         },
       ),

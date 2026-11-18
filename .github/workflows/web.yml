@@ -43,7 +43,7 @@ jobs:
       - name: Build web app
         env:
           BASE_HREF: ${{ github.ref == 'refs/heads/main' && format('/{0}/', github.event.repository.name) || '/' }}
-        run: flutter build web --release --base-href "$BASE_HREF"
+        run: python3 build.py --build-number "${{ github.run_number }}" --base-href "$BASE_HREF"
 
       - name: Upload development build
         if: github.ref != 'refs/heads/main'

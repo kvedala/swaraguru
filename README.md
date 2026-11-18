@@ -284,6 +284,10 @@ Only the deployment job receives Pages write permissions. Deployments share a
 single `github-pages` concurrency group, so they run one at a time and never
 cancel an in-progress deployment.
 
+The build stamps the workflow run number into `pubspec.yaml` temporarily and
+restores the original file afterward. The web app shows the running version
+in the bottom-right corner and offers a reload when a newer build is available.
+
 ### Development testing
 
 Pull requests targeting `main` run the same analysis, tests, and web build,
