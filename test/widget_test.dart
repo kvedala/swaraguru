@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:swaraguru/models/models.dart';
+import 'package:swaraguru/ui/widgets/swara_grid.dart';
 
 import 'support/fakes.dart';
 
@@ -142,6 +143,48 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('Scale practice starts avarohanam on a fresh line', (
+    tester,
+  ) async {
+    await pumpStudio(tester);
+    await tapText(tester, 'Practice settings');
+    await tapText(tester, 'Practice Raga Scale');
+
+    final cells = find.byType(SwaraCell);
+    final controller = tester
+        .widget<SwaraGrid>(find.byType(SwaraGrid))
+        .controller;
+    final split = controller.raga.arohanam.length;
+    final start = tester.getTopLeft(cells.first);
+    expect(tester.getTopLeft(cells.at(split - 1)).dy, start.dy);
+    final descent = tester.getTopLeft(cells.at(split));
+    expect(descent.dx, start.dx);
+    expect(descent.dy, greaterThan(start.dy));
+  });
+
+  testWidgets('Sri Gananatha rows follow the Adi grid and selected kaalam', (
+    tester,
+  ) async {
+    await pumpStudio(tester);
+    await tapText(tester, 'Library');
+    await tapText(tester, 'Geetams');
+    await tapText(tester, 'Sri Gananatha (Lambodara) — Malahari');
+
+    final cells = find.byType(SwaraCell);
+    Offset startOf(int index) => tester.getTopLeft(cells.at(index));
+    expect(startOf(7).dy, startOf(0).dy);
+    expect(startOf(8).dx, startOf(0).dx);
+    expect(startOf(8).dy, greaterThan(startOf(0).dy));
+
+    final controller = tester
+        .widget<SwaraGrid>(find.byType(SwaraGrid))
+        .controller;
+    controller.selectKaalam(kKaalamOptions[1]);
+    await tester.pump();
+    expect(startOf(8).dy, startOf(0).dy);
+    expect(startOf(8).dx, greaterThan(startOf(0).dx));
   });
 
   testWidgets('Listen & Identify names the sung swara', (tester) async {
@@ -299,10 +342,7 @@ void main() {
     await tester.pumpAndSettle();
     await tapText(tester, 'Sa = C (B#) • 1 Kattai (130.81 Hz)');
 
-    await tester.drag(
-      find.byType(SingleChildScrollView),
-      const Offset(0, -400),
-    );
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
     await tester.pumpAndSettle();
     expect(raga.hitTestable(), findsOneWidget);
     expect(sa('C (B#)').hitTestable(), findsOneWidget);
@@ -471,6 +511,121 @@ void main() {
     await tapText(tester, 'Devi Sthuthi — Sree Saraswathi');
     expect(find.text('Devi Sthuthi — Sree Saraswathi'), findsOneWidget);
     expect(find.textContaining('Arabhi • Roopaka'), findsOneWidget);
+  });
+
+  testWidgets('Beat strip fits one row and shows the current kriya', (
+    tester,
+  ) async {
+    Future<void> showBeat(int? beat) => tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 288,
+              child: AdiTalaBeatStrip(activeBeat: beat),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await showBeat(null);
+    Finder beatTooltip(String label) => find.byWidgetPredicate(
+      (widget) => widget is Tooltip && widget.message == label,
+    );
+    final first = beatTooltip('Beat 1 • Clap (Laghu)');
+    final last = beatTooltip('Beat 8 • Wave');
+    final row = tester.getCenter(first).dy;
+    expect(tester.getCenter(last).dy, row);
+    expect(tester.getCenter(find.text('Adi tala')).dy, row);
+    expect(tester.getSize(find.byType(AdiTalaBeatStrip)).height, lessThan(30));
+
+    await showBeat(4);
+    expect(find.text('Finger 3'), findsOneWidget);
+    final fourth = beatTooltip('Beat 4 • Finger 3');
+    final marker = find.descendant(
+      of: fourth,
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.label == 'Beat 4 • Finger 3',
+      ),
+    );
+    expect(tester.widget<Semantics>(marker).properties.selected, isTrue);
+    expect(
+      tester.getCenter(find.text('Finger 3')).dy,
+      tester.getCenter(fourth).dy,
+    );
+  });
+
+  testWidgets('Single-row Sarali keeps written beat groups together', (
+    tester,
+  ) async {
+    await pumpStudio(tester);
+    final cells = find.byType(SwaraCell);
+    Rect bounds(int i) => tester.getRect(cells.at(i));
+    expect(bounds(3).top, bounds(0).top);
+    expect(bounds(4).top, bounds(3).top);
+    expect(
+      bounds(4).left - bounds(3).right,
+      greaterThan(bounds(1).left - bounds(0).right),
+    );
+
+    tester.view.physicalSize = const Size(360, 800);
+    await tester.pumpAndSettle();
+    expect(bounds(3).top, bounds(0).top);
+    expect(bounds(4).left, bounds(0).left);
+    expect(bounds(4).top, greaterThan(bounds(3).bottom));
+    expect(bounds(7).top, bounds(4).top);
+  });
+
+  testWidgets('Long scores build on demand and update only changed cells', (
+    tester,
+  ) async {
+    await pumpStudio(tester, size: const Size(360, 640));
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Library'));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Janta Varisai');
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Combo 15'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Janta Varisai 15'), findsOneWidget);
+    final controller = tester
+        .widget<SwaraGrid>(find.byType(SwaraGrid, skipOffstage: false))
+        .controller;
+    final scroll = tester.state<ScrollableState>(find.byType(Scrollable));
+    scroll.position.jumpTo(220);
+    await tester.pump();
+    final cells = find.byType(SwaraCell, skipOffstage: false);
+    final count = cells.evaluate().length;
+    expect(count, inInclusiveRange(4, controller.steps.length ~/ 2));
+    expect(
+      tester.getTopLeft(cells.at(0)).dy,
+      tester.getTopLeft(cells.at(3)).dy,
+    );
+    double top(int i) => tester.getTopLeft(cells.at(i)).dy;
+    expect(top(4), greaterThan(top(0)));
+    expect(
+      tester.getTopLeft(cells.at(16)).dx,
+      tester.getTopLeft(cells.at(0)).dx,
+    );
+    expect(top(16) - top(12), greaterThan(top(4) - top(0)));
+
+    SwaraCell cell(int index) => tester.widget<SwaraCell>(cells.at(index));
+    await controller.playReference();
+    await tester.pump();
+    expect(cell(0).isActive, isTrue);
+    final unchanged = cell(3);
+    await tester.pump(controller.stepDuration);
+    expect(cell(0).isActive, isFalse);
+    expect(cell(1).isActive, isTrue);
+    expect(cell(3), same(unchanged));
+
+    controller.stopTransport();
+    scroll.position.jumpTo(1000);
+    await tester.pump();
+    expect(find.byWidget(unchanged), findsNothing);
+    expect(cells, findsWidgets);
   });
 
   testWidgets('Mobile drawer scrolls to Help and Home restores navigation', (

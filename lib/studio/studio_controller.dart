@@ -206,6 +206,8 @@ class StudioController extends ChangeNotifier {
   final Map<int, StepPitchEvaluation> _evaluations = {};
   Map<int, StepPitchEvaluation> get evaluations =>
       Map.unmodifiable(_evaluations);
+  bool get hasEvaluations => _evaluations.isNotEmpty;
+  StepPitchEvaluation? evaluationAt(int index) => _evaluations[index];
 
   double _pitchTolerancePercent = SwaraIdentifier.defaultTolerancePercent;
   double get pitchTolerancePercent => _pitchTolerancePercent;

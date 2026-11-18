@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
 
 import '../../models/models.dart';
+import '../../studio/studio_controller.dart';
 import '../../theme/swara_theme.dart';
 
 /// Adi tala kriya for each of its eight beats
@@ -19,12 +22,22 @@ class AdiTalaBeatStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final beat = activeBeat;
+    final action = beat == null ? 'Adi tala' : adiTalaKriya(beat).split(' (').first;
     return Wrap(
-      spacing: 6,
-      runSpacing: 6,
+      spacing: 8,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        for (var beat = 1; beat <= 8; beat++)
-          _BeatChip(beat: beat, isCurrent: activeBeat == beat),
+        Wrap(
+          spacing: 2,
+          runSpacing: 4,
+          children: [
+            for (var number = 1; number <= 8; number++)
+              _BeatChip(beat: number, isCurrent: beat == number),
+          ],
+        ),
+        Text(action, style: const TextStyle(fontSize: 12, color: Colors.white70)),
       ],
     );
   }
@@ -38,21 +51,34 @@ class _BeatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: isCurrent ? SwaraColors.royalGold : SwaraColors.midnightBg,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isCurrent ? SwaraColors.brightGold : SwaraColors.borderGold,
-        ),
-      ),
-      child: Text(
-        'Beat $beat • ${adiTalaKriya(beat)}',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: isCurrent ? SwaraColors.midnightBg : Colors.white70,
+    final label = 'Beat $beat • ${adiTalaKriya(beat)}';
+    return Tooltip(
+      message: label,
+      excludeFromSemantics: true,
+      child: Semantics(
+        label: label,
+        selected: isCurrent,
+        excludeSemantics: true,
+        child: Container(
+          constraints: const BoxConstraints(minWidth: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
+          decoration: BoxDecoration(
+            color: isCurrent ? SwaraColors.royalGold : SwaraColors.midnightBg,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: isCurrent ? SwaraColors.brightGold : SwaraColors.borderGold,
+            ),
+          ),
+          child: Text(
+            '$beat',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              letterSpacing: 0,
+              fontWeight: FontWeight.bold,
+              color: isCurrent ? SwaraColors.midnightBg : Colors.white70,
+            ),
+          ),
         ),
       ),
     );
@@ -60,37 +86,217 @@ class _BeatChip extends StatelessWidget {
 }
 
 /// The lesson's swaras, colour-coded by their pitch evaluation.
-class SwaraGrid extends StatelessWidget {
-  const SwaraGrid({
-    super.key,
-    required this.steps,
-    required this.saHz,
-    required this.activeStepIndex,
-    required this.evaluations,
-    required this.onTapStep,
-  });
+class SwaraGrid extends StatefulWidget {
+  const SwaraGrid({super.key, required this.controller});
 
-  final List<LessonStep> steps;
-  final double saHz;
-  final int activeStepIndex;
-  final Map<int, StepPitchEvaluation> evaluations;
-  final ValueChanged<int> onTapStep;
+  final StudioController controller;
+
+  @override
+  State<SwaraGrid> createState() => _SwaraGridState();
+}
+
+class _SwaraGridState extends State<SwaraGrid> {
+  StudioController? _controller;
+  List<LessonStep>? _steps;
+  int? _stepsPerCycle;
+  late SliverChildDelegate _cells;
+  SliverChildDelegate? _rows;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (var i = 0; i < steps.length; i++)
-          SwaraCell(
-            step: steps[i],
-            saHz: saHz,
-            isActive: i == activeStepIndex,
-            evaluation: evaluations[i],
-            onTap: () => onTapStep(i),
-          ),
-      ],
+    final controller = widget.controller;
+    final steps = controller.steps;
+    final hasWrittenRows = steps.isNotEmpty && steps.first.startsRow;
+    final beats = hasWrittenRows ? null : controller.activeLesson.talaBeatsForLayout;
+    final stepsPerBeat = controller.kaalam.swarasPerBeat;
+    final stepsPerCycle = beats == null
+        ? null
+        : math.min(beats, steps.length) * stepsPerBeat;
+    // Keep the delegate stable on transport ticks so mounted cells can update
+    // independently instead of rebuilding the entire visible grid.
+    if (_controller != controller ||
+        _steps != steps ||
+        _stepsPerCycle != stepsPerCycle) {
+      _controller = controller;
+      _steps = steps;
+      _stepsPerCycle = stepsPerCycle;
+      Widget cell(int index) => _LiveSwaraCell(
+        key: ValueKey(index),
+        controller: controller,
+        index: index,
+        step: steps[index],
+      );
+      if (steps.isNotEmpty && (hasWrittenRows || stepsPerCycle != null)) {
+        final boundaries = [
+          0,
+          if (hasWrittenRows)
+            for (var i = 1; i < steps.length; i++)
+              if (steps[i].startsRow) i,
+          if (stepsPerCycle != null)
+            for (var i = stepsPerCycle; i < steps.length; i += stepsPerCycle) i,
+          steps.length,
+        ];
+        _rows = SliverChildBuilderDelegate(
+          (_, row) {
+            final start = boundaries[row];
+            final groups = <List<Widget>>[];
+            for (var i = start; i < boundaries[row + 1]; i++) {
+              if (i == start ||
+                  (hasWrittenRows ? steps[i].startsCell : i % stepsPerBeat == 0)) {
+                groups.add([]);
+              }
+              groups.last.add(cell(i));
+            }
+            return _NotationRow(gapBefore: row == 0 ? 0 : 12, groups: groups);
+          },
+          childCount: boundaries.length - 1,
+        );
+      } else {
+        _rows = null;
+        _cells = SliverChildBuilderDelegate(
+          (_, index) => cell(index),
+          childCount: steps.length,
+        );
+      }
+    }
+
+    if (_rows case final rows?) return SliverList(delegate: rows);
+
+    final size = _swaraCellSize(context);
+    return SliverGrid(
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: size.width,
+        mainAxisExtent: size.height,
+        crossAxisSpacing: _cellSpacing,
+        mainAxisSpacing: _cellSpacing,
+      ),
+      delegate: _cells,
+    );
+  }
+}
+
+const _cellSpacing = 4.0;
+
+Size _swaraCellSize(BuildContext context) {
+  final scaler = MediaQuery.textScalerOf(context);
+  return Size(
+    82 + (scaler.scale(13) - 13) * 5,
+    15 + scaler.scale(17) + scaler.scale(12) * 2.5,
+  );
+}
+
+class _NotationRow extends StatelessWidget {
+  const _NotationRow({required this.gapBefore, required this.groups});
+
+  final double gapBefore;
+  final List<List<Widget>> groups;
+
+  static const _groupSpacing = 8.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = _swaraCellSize(context);
+    final grouped =
+        groups.length > 1 && groups.any((group) => group.length > 1);
+    final spacing = grouped ? _groupSpacing : _cellSpacing;
+    return Padding(
+      padding: EdgeInsets.only(top: gapBefore),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final columns = math.max(
+            1,
+            (width / (size.width + spacing)).ceil(),
+          );
+          final cellWidth =
+              ((width - (columns - 1) * spacing) / columns).floorToDouble();
+          Widget sized(Widget child) =>
+              SizedBox(width: cellWidth, height: size.height, child: child);
+
+          Widget groupWidget(List<Widget> group) {
+            if (group.length == 1) return sized(group.single);
+            return Wrap(
+              spacing: _cellSpacing,
+              runSpacing: _cellSpacing,
+              children: [for (final child in group) sized(child)],
+            );
+          }
+
+          return Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: [for (final group in groups) groupWidget(group)],
+          );
+        },
+      ),
+    );
+  }
+}
+
+typedef _CellState = (double saHz, bool active, StepPitchEvaluation? evaluation);
+
+class _LiveSwaraCell extends StatefulWidget {
+  const _LiveSwaraCell({
+    super.key,
+    required this.controller,
+    required this.index,
+    required this.step,
+  });
+
+  final StudioController controller;
+  final int index;
+  final LessonStep step;
+
+  @override
+  State<_LiveSwaraCell> createState() => _LiveSwaraCellState();
+}
+
+class _LiveSwaraCellState extends State<_LiveSwaraCell> {
+  late _CellState _state;
+
+  _CellState _read() => (
+    widget.controller.saHz,
+    widget.index == widget.controller.activeStepIndex,
+    widget.controller.evaluationAt(widget.index),
+  );
+
+  void _update() {
+    final next = _read();
+    if (next != _state) setState(() => _state = next);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _state = _read();
+    widget.controller.addListener(_update);
+  }
+
+  @override
+  void didUpdateWidget(covariant _LiveSwaraCell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_update);
+      widget.controller.addListener(_update);
+    }
+    _state = _read();
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_update);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final (saHz, active, evaluation) = _state;
+    return SwaraCell(
+      step: widget.step,
+      saHz: saHz,
+      isActive: active,
+      evaluation: evaluation,
+      onTap: () => widget.controller.previewStep(widget.index),
     );
   }
 }
@@ -168,38 +374,46 @@ class SwaraCell extends StatelessWidget {
         (null, _) => 'Unrecognised swara "${step.token}"',
       },
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: Container(
-          width: 78,
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 3),
           decoration: BoxDecoration(
             color: background,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(color: borderColor, width: isActive ? 2 : 1.2),
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 step.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 17,
+                  height: 1.15,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                 ),
               ),
               Text(
                 step.lyric ?? (step.isKarvai ? '—' : note?.telugu ?? '?'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
+                  height: 1.15,
                   color: SwaraColors.royalGold,
                 ),
               ),
-              const SizedBox(height: 2),
               Text(
                 detail,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 10,
+                  height: 1.15,
                   fontWeight: FontWeight.w600,
                   color: detailColor,
                 ),

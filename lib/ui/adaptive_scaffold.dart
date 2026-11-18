@@ -194,12 +194,9 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
     }
 
     return switch (_screen) {
-      StudioScreen.varisai => scrollPage(
-        'screen-varisai',
-        VarisaiStudioScreen(
-          controller: controller,
-          onAddCustomLesson: _addCustomLesson,
-        ),
+      StudioScreen.varisai => VarisaiStudioScreen(
+        controller: controller,
+        onAddCustomLesson: _addCustomLesson,
       ),
       StudioScreen.library => scrollPage(
         'screen-library',

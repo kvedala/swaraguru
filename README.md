@@ -101,9 +101,19 @@ cycle:
 
 The beat starts at **60 BPM**. Use **−** and **+** to adjust it in **10 BPM**
 steps up to **200 BPM**. Kaalam sets how many swaras fit in each beat.
+The swara grid starts each written score row on a fresh line and spaces out
+its notation cells. This shows the beat groups even in single-row Sarali
+exercises. On narrow screens the grid wraps between groups when they fit,
+with extra space between written rows. Scale practice
+separates arohanam and avarohanam. For flat notation, the grid starts a new row
+each talam cycle when the beat count is known, using the selected kaalam.
+Sri Gananatha uses the eight-beat Adi practice grid. Long scores load as you
+scroll. Tap a swara to hear it.
 **Play Varisai** plays each swara on
-the selected instrument and holds it through any karvai, while the grid
-highlights the active swara and tala kriya.
+the selected instrument and holds it through any karvai. The grid highlights
+the active swara, and the compact beat strip highlights the beat and shows
+the current clap, finger count, or wave. Each beat marker has a tooltip
+with its full tala instruction.
 
 Open **Practice audio** from the headphones button in the header to start
 or stop the audible metronome. Its tempo uses the same BPM as the lesson.

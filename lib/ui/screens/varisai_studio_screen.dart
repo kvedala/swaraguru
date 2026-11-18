@@ -24,21 +24,35 @@ class VarisaiStudioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _RagaAndInstrumentCard(controller: controller),
-        const SizedBox(height: 16),
-        _LessonGridCard(
-          controller: controller,
-          onAddCustomLesson: onAddCustomLesson,
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          sliver: SliverList.list(
+            children: [
+              _RagaAndInstrumentCard(controller: controller),
+              const SizedBox(height: 16),
+              _LessonControlsCard(
+                controller: controller,
+                onAddCustomLesson: onAddCustomLesson,
+              ),
+            ],
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          sliver: SwaraGrid(controller: controller),
         ),
         if (controller.isTransportRunning ||
             controller.activeStepIndex >= 0 ||
-            controller.evaluations.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          EvaluationSummaryBanner(controller: controller),
-        ],
+            controller.hasEvaluations)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            sliver: SliverToBoxAdapter(
+              child: EvaluationSummaryBanner(controller: controller),
+            ),
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
       ],
     );
   }
@@ -137,8 +151,8 @@ class _RagaAndInstrumentCard extends StatelessWidget {
   }
 }
 
-class _LessonGridCard extends StatelessWidget {
-  const _LessonGridCard({
+class _LessonControlsCard extends StatelessWidget {
+  const _LessonControlsCard({
     required this.controller,
     required this.onAddCustomLesson,
   });
@@ -244,14 +258,6 @@ class _LessonGridCard extends StatelessWidget {
             const SizedBox(height: 14),
             AdiTalaBeatStrip(
               activeBeat: running ? controller.activeBeat : null,
-            ),
-            const SizedBox(height: 16),
-            SwaraGrid(
-              steps: controller.steps,
-              saHz: controller.saHz,
-              activeStepIndex: controller.activeStepIndex,
-              evaluations: controller.evaluations,
-              onTapStep: controller.previewStep,
             ),
           ],
         ),

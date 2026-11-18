@@ -32,8 +32,9 @@ class CarnaticLesson {
     title: '${raga.name} — Arohanam & Avarohanam',
     raga: raga.name,
     description: 'Ascend and descend through the ${raga.name} scale.',
-    flatNotation: [
-      for (final note in [...raga.arohanam, ...raga.avarohanam]) note.label,
+    notationRows: [
+      [for (final note in raga.arohanam) note.label],
+      [for (final note in raga.avarohanam) note.label],
     ],
   );
 
@@ -48,6 +49,21 @@ class CarnaticLesson {
   final String raga;
   final String tala;
   final String description;
+
+  /// Beat count when the lesson specifies a practice grid or a cycle length.
+  int? get talaBeatsForLayout {
+    if (_adiGrid.hasMatch(tala)) return 8;
+    final count = int.tryParse(_beatCount.firstMatch(tala)?.group(1) ?? '');
+    if (count != null && count > 0) return count;
+    return _adiTala.hasMatch(tala) ? 8 : null;
+  }
+
+  static final _adiGrid = RegExp(r'\badi\s+grid\b', caseSensitive: false);
+  static final _adiTala = RegExp(
+    r'^adi(?:\s+talam?)?(?:\s*\(|\s*$)',
+    caseSensitive: false,
+  );
+  static final _beatCount = RegExp(r'\b(\d+)\s+beats?\b', caseSensitive: false);
 
   final int? combo;
   final int? sequence;
