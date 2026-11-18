@@ -2,7 +2,10 @@ import 'dart:math' as math;
 
 import '../models/instrument.dart';
 
-/// Additive-synthesis recipe for one instrument voice.
+/// Harmonic weights and time constants for a synthesized instrument voice.
+///
+/// The oscillator supplies the waveform; the gain envelope and low-pass filter
+/// shape how loud and bright it sounds over the life of a note.
 class InstrumentTimbre {
   const InstrumentTimbre({
     required this.harmonics,
@@ -40,6 +43,7 @@ class InstrumentTimbre {
       attackSeconds + (decaySeconds ?? releaseSeconds) * 5;
 }
 
+/// Maps an instrument selection to its synthesis parameters.
 extension InstrumentTimbreOf on SwaraInstrument {
   InstrumentTimbre get timbre => switch (this) {
     SwaraInstrument.tampura => _tampura,

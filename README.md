@@ -6,19 +6,20 @@ and instrument playback.**
 SwaraGuru is a Flutter Material 3 application for exploring Carnatic swaras,
 practicing Varisai patterns in any raga, and singing against a reference
 Shruti. Its adaptive interface brings together a **Varisai Studio**, **Live
-Pitch Coach**, and **Shruti Drone Lab** across mobile, tablet, desktop, and
+Pitch Coach**, and **Practice Audio** across mobile, tablet, desktop, and
 web layouts.
 
 ## Current capabilities
 
 - **Listen & Identify:** the microphone names the swarasthana you sing or
-  play, in any octave, with its frequency, cent deviation, and whether it
+  play, in any octave, with its frequency and whether it
   belongs to the session raga.
 - **Sing & Match:** the Varisai grid advances in tala while the microphone
   grades every step as Sruti Suddham, Apasruti, Wrong Swarasthana, or No
   Voice.
 - **Instrument playback:** lessons play on a synthesized **harmonium**,
-  **piano**, or **tampura**, and the drone can use any of the three.
+  **piano**, or **tampura**. The Shruti box starts with a single Sa on
+  harmonium.
 - **Session raga:** any of the 72 melakartas or 25 common janya ragas
   re-tunes the lesson grid, the note identifier, and the suggested tampura
   tuning.
@@ -30,24 +31,24 @@ app shows a notice.
 
 ### Base Sa and tuning
 
-Choose the base Sa (Adhara Shadjam) from twelve pitches, matching the iSruthi
-reference table:
+The header always shows the current raga and base Sa. Open the **Sa** picker
+to choose from twelve pitches, matching the iSruthi reference table:
 
 | Pitch | Kattai | Hz | Pitch | Kattai | Hz |
 | --- | --- | --- | --- | --- | --- |
 | A | 6 | 110.00 | D# | 2½ | 155.56 |
 | A# | 6½ | 116.54 | E | 3 | 164.81 |
 | B | 7 | 123.47 | F | 4 | 174.61 |
-| C | 1 | 130.81 | F# | 4½ | 185.00 |
+| C (B#) | 1 | 130.81 | F# | 4½ | 185.00 |
 | C# | 1½ | 138.59 | G | 5 | 196.00 |
 | D | 2 | 146.83 | G# | 5½ | 207.65 |
 
-The default is C# (1½ Kattai). Fine tuning from **-50 to +50 cents** adjusts
-the effective Sa.
+The default is C# (1½ Kattai). B# is another name for C at the same pitch
+in this picker, not an extra pitch.
 
 Sa, Shuddha Madhyamam (4:3), Panchamam (3:2), and Tara Shadjam (2:1) are pure
 intervals. The other swarasthanas are spaced evenly (geometrically) between
-these anchors, so Shuddha Rishabham is about 99.6 cents above Sa. All sixteen
+these anchors. All sixteen
 swara names are supported; enharmonic pairs such as R2/G1 and D3/N2 share a
 pitch.
 
@@ -83,19 +84,33 @@ cycle:
 | Tempo 3 | 4 |
 | Tempo 4 | 8 |
 
-Set the tempo from **40 to 140 BPM**. **Play Varisai** plays each swara on
+The beat starts at **60 BPM**. Use **−** and **+** to adjust it in **10 BPM**
+steps up to **200 BPM**. Kaalam sets how many swaras fit in each beat.
+**Play Varisai** plays each swara on
 the selected instrument and holds it through any karvai, while the grid
 highlights the active swara and tala kriya.
 
+Open **Practice audio** from the headphones button in the header to start
+or stop the audible metronome. Its tempo uses the same BPM as the lesson.
+The metronome runs independently of the lesson, including in a background
+browser tab or while the Android or iOS app is minimized. Mobile playback
+can also be paused from system media controls. Browsers and operating
+systems may still interrupt audio, for example during calls or if an app or
+tab is force-closed.
+
 ### Live Pitch Coach
 
-- **Listen & Identify** shows the nearest swara, its full name, frequency,
-  and a cents meter that turns green within 25 cents.
+- **Listen & Identify** shows the nearest swara to a steady note, based on
+  your chosen Sa. It waits for about a quarter second of consistent
+  readings before updating the display. Start by holding one swara steadily.
 - **Sing & Match** compares each grid step with the median of the steady
   pitches heard during that step. Singing an octave higher or lower is
   accepted.
-  - **Sruti Suddham:** the expected swarasthana within 25 cents.
-  - **Apasruti:** the expected swarasthana, but more than 25 cents off.
+  - **Matched (Sruti Suddham):** the pitch was within the selected tolerance
+    above or below the expected frequency in the octave you sang. Use
+    **Pitch tolerance** in **Live Pitch Coach → Sing & Match** to set it
+    from 0% to 3%. The default is 1.5%; changes apply to new evaluations.
+  - **Pitch drift (Apasruti):** the swara was right but a little high or low.
   - **Wrong Swarasthana:** a different swarasthana from the expected note.
   - **No Voice:** no steady pitch during the step.
 - **Coach Input** switches between the microphone and two demo singers, a
@@ -111,7 +126,7 @@ Lab). Audio starts from a user gesture, as required by browser autoplay
 policies. Each instrument is an additive-synthesis voice with its own
 harmonics, envelope, and filter. The tampura plucks its lowest string first,
 then the remaining strings from the top down, repeating the cycle like a
-traditional tampura. Pitch, fine tuning, instrument, channel levels, and
+traditional tampura. Pitch, instrument, channel levels, and
 volume update while playing.
 
 The first time you use **Listen & Identify** or start **Sing & Match** with
@@ -122,19 +137,17 @@ The microphone stream is analysed on the device with the YIN pitch detection
 algorithm. Microphone audio is never recorded, stored, or uploaded, and the
 microphone is released as soon as listening and coaching stop.
 
-### Shruti Drone Lab
+### Practice Audio
 
-- **Drone instrument:** tampura (plucked strings with a buzzing jawari),
-  harmonium (sustained reeds), or piano.
-- **Pure single-note mode:** an isolated reference for Sa, M1, M2, Pa, N3,
-  or upper Sa.
-- **Multi-note mode:** independently mixed lower Pa, lower N3, Sa, M1, M2,
-  Pa, N3, and upper Sa.
+- **Single note:** starts with a sustained Sa on harmonium. Choose Piano,
+  Tampura, or Harmonium under **Sound**, then select Sa, M1, M2, Pa, N3,
+  or upper Sa as the reference swara.
+- **Multi note:** mix lower Pa, lower N3, Sa, M1, M2, Pa, N3, and upper Sa
+  independently. Choose Tampura, Harmonium, or Piano.
 - Pa, Ma, Ni, and Sa-only tampura tunings, with the tuning that suits the
   session raga highlighted.
-- Live pitch, fine-tuning, channel-level, and master-volume controls.
-- Quick access through the app bar, right-hand Shruti drawer, and dedicated
-  Shruti Drone Lab screen.
+- The **Shared volume** slider adjusts Shruti and the metronome together.
+- Open the panel from the header or the **Audio** tab.
 
 <!-- end-of-app-help: the in-app Help page shows only the content above. -->
 

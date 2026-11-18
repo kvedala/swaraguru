@@ -42,10 +42,16 @@ DroneSettings _$DroneSettingsFromJson(Map<String, dynamic> json) =>
     DroneSettings(
       mode:
           $enumDecodeNullable(_$DroneModeEnumMap, json['mode']) ??
-          DroneMode.multiNoteChord,
+          DroneMode.pureSingleNote,
       pureChannel:
           $enumDecodeNullable(_$DroneChannelEnumMap, json['pureChannel']) ??
           DroneChannel.sa,
+      singleNoteInstrument:
+          $enumDecodeNullable(
+            _$SwaraInstrumentEnumMap,
+            json['singleNoteInstrument'],
+          ) ??
+          SwaraInstrument.harmonium,
       mix: (json['mix'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(
           $enumDecode(_$DroneChannelEnumMap, k),
@@ -62,6 +68,8 @@ Map<String, dynamic> _$DroneSettingsToJson(DroneSettings instance) =>
     <String, dynamic>{
       'mode': _$DroneModeEnumMap[instance.mode]!,
       'pureChannel': _$DroneChannelEnumMap[instance.pureChannel]!,
+      'singleNoteInstrument':
+          _$SwaraInstrumentEnumMap[instance.singleNoteInstrument]!,
       'mix': instance.mix.map((k, e) => MapEntry(_$DroneChannelEnumMap[k]!, e)),
       'volume': instance.volume,
       'instrument': _$SwaraInstrumentEnumMap[instance.instrument]!,

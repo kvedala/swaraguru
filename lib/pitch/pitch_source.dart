@@ -9,6 +9,9 @@ import 'yin_pitch_detector.dart';
 /// A live stream of pitch readings, usually from the microphone. A `null`
 /// reading means silence or an unpitched sound.
 abstract class PitchSource {
+  /// Amount of audio between consecutive readings, independent of delivery.
+  Duration get readingInterval;
+
   /// Starts listening. Throws [PitchSourceException] when the input is
   /// unavailable or permission is denied.
   Future<Stream<PitchReading?>> start();
@@ -18,6 +21,7 @@ abstract class PitchSource {
   Future<void> dispose();
 }
 
+/// A capture failure with a message suitable for displaying in the studio.
 class PitchSourceException implements Exception {
   const PitchSourceException(this.message);
 
@@ -28,7 +32,8 @@ class PitchSourceException implements Exception {
 }
 
 /// Captures 16-bit mono PCM with the `record` plugin and analyses it with
-/// [YinPitchDetector]. Audio never leaves the device and is not stored.
+/// [YinPitchDetector]. Emits one reading per frame hop; audio stays on-device
+/// and is never saved.
 class MicrophonePitchSource implements PitchSource {
   MicrophonePitchSource({
     this.sampleRate = 44100,
@@ -39,6 +44,14 @@ class MicrophonePitchSource implements PitchSource {
   final int sampleRate;
   final int frameSize;
   final int hopSize;
+
+  late int _captureSampleRate = sampleRate;
+
+  @override
+  Duration get readingInterval => Duration(
+    microseconds:
+        (hopSize * Duration.microsecondsPerSecond / _captureSampleRate).round(),
+  );
 
   AudioRecorder? _recorder;
   StreamSubscription<Uint8List>? _subscription;
@@ -61,8 +74,12 @@ class MicrophonePitchSource implements PitchSource {
       );
     }
 
+    _captureSampleRate = sampleRate;
     var detector = YinPitchDetector(sampleRate: sampleRate.toDouble());
+    // A platform can negotiate a different sample rate. Both frequency
+    // estimates and elapsed audio time must use the rate it actually supplies.
     await recorder.setOnConfigChanged((config) {
+      _captureSampleRate = config.sampleRate;
       detector = YinPitchDetector(sampleRate: config.sampleRate.toDouble());
     });
 

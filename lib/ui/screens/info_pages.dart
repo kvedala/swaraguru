@@ -110,7 +110,7 @@ class _PrivacyContent extends StatelessWidget {
         InfoCard(
           title: 'Audio and microphone',
           body:
-              'The Shruti Drone Lab and Varisai playback generate tampura, '
+              'The Shruti box and Varisai playback generate tampura, '
               'harmonium and piano tones locally on your device; no audio is '
               'sent to a server. The microphone is used only after you press '
               '"Listen & Identify" or start Sing & Match with Microphone '

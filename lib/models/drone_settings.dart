@@ -10,8 +10,8 @@ enum DroneMode { pureSingleNote, multiNoteChord }
 
 extension DroneModeInfo on DroneMode {
   String get label => switch (this) {
-    DroneMode.pureSingleNote => 'Pure Single Note',
-    DroneMode.multiNoteChord => 'Multi-Note Tampura',
+    DroneMode.pureSingleNote => 'Single note',
+    DroneMode.multiNoteChord => 'Multi note',
   };
 }
 
@@ -123,8 +123,9 @@ class DroneSound {
 @JsonSerializable()
 class DroneSettings {
   DroneSettings({
-    this.mode = DroneMode.multiNoteChord,
+    this.mode = DroneMode.pureSingleNote,
     this.pureChannel = DroneChannel.sa,
+    this.singleNoteInstrument = SwaraInstrument.harmonium,
     Map<DroneChannel, double>? mix,
     this.volume = 0.55,
     this.instrument = SwaraInstrument.tampura,
@@ -135,6 +136,7 @@ class DroneSettings {
 
   final DroneMode mode;
   final DroneChannel pureChannel;
+  final SwaraInstrument singleNoteInstrument;
   final Map<DroneChannel, double> mix;
   final double volume;
   final SwaraInstrument instrument;
@@ -144,12 +146,14 @@ class DroneSettings {
   DroneSettings copyWith({
     DroneMode? mode,
     DroneChannel? pureChannel,
+    SwaraInstrument? singleNoteInstrument,
     Map<DroneChannel, double>? mix,
     double? volume,
     SwaraInstrument? instrument,
   }) => DroneSettings(
     mode: mode ?? this.mode,
     pureChannel: pureChannel ?? this.pureChannel,
+    singleNoteInstrument: singleNoteInstrument ?? this.singleNoteInstrument,
     mix: mix ?? this.mix,
     volume: volume ?? this.volume,
     instrument: instrument ?? this.instrument,
@@ -177,11 +181,13 @@ class DroneSettings {
   DroneSound soundFor(double saHz) => DroneSound(
     voices: voicesFor(saHz),
     volume: volume,
-    instrument: instrument,
+    instrument: mode == DroneMode.pureSingleNote
+        ? singleNoteInstrument
+        : instrument,
   );
 
   String get summary {
-    if (mode == DroneMode.pureSingleNote) return 'Pure ${pureChannel.label}';
+    if (mode == DroneMode.pureSingleNote) return 'Single ${pureChannel.label}';
     final active = [
       for (final channel in DroneChannel.values)
         if (levelOf(channel) > 0.05) channel.label,

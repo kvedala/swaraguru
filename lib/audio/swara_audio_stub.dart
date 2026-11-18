@@ -4,6 +4,8 @@ import 'swara_audio.dart';
 
 SwaraAudio createSwaraAudio() => _UnsupportedSwaraAudio();
 
+/// Native fallback that reports unavailable synthesis at startup, allowing
+/// the lesson transport to keep advancing visually without creating audio.
 class _UnsupportedSwaraAudio implements SwaraAudio {
   static const _message =
       'Instrument audio is currently available in the web app only.';

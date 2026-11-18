@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../models/models.dart';
 import '../../theme/swara_theme.dart';
-import 'live_pitch_readout.dart';
 
 /// Adi tala kriya for each of its eight beats
 /// (Laghu of 4 + Dhrutam of 2 + Dhrutam of 2).
@@ -144,8 +143,14 @@ class SwaraCell extends StatelessWidget {
         case NoteMatchStatus.noVoice:
           detail = 'No voice';
           detailColor = Colors.white54;
-        case NoteMatchStatus.match || NoteMatchStatus.apasruti:
-          detail = '${formatCents(evaluation.centDeviation)}c';
+        case NoteMatchStatus.match:
+          detail = 'Matched';
+        case NoteMatchStatus.apasruti:
+          detail = evaluation.centDeviation == 0
+              ? 'Pitch drift'
+              : evaluation.centDeviation > 0
+              ? 'Too high'
+              : 'Too low';
       }
     } else if (invalid) {
       detail = 'Unknown';

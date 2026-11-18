@@ -1,14 +1,8 @@
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:material_ui/material_ui.dart';
 
-import '../../pitch/swara_identifier.dart';
 import '../../studio/pitch_display.dart';
 import '../../theme/swara_theme.dart';
-
-String formatCents(num cents) {
-  final rounded = cents.round();
-  return rounded > 0 ? '+$rounded' : '$rounded';
-}
 
 /// Compact swara badge plus description of the latest reference or heard
 /// pitch. Rebuilds only when [display] changes.
@@ -71,8 +65,7 @@ class LivePitchReadout extends StatelessWidget {
     return switch (pitch.source) {
       PitchDisplaySource.reference => '$hz • reference swarasthana',
       PitchDisplaySource.voice =>
-        '$hz (${formatCents(pitch.centsOff)} cents from Swarasthana)'
-            '${pitch.inRaga ? '' : ' • outside the raga'}',
+        '$hz${pitch.inRaga ? '' : ' • outside the raga'}',
       PitchDisplaySource.idle => hz,
     };
   }
@@ -119,108 +112,4 @@ class SwaraBadge extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Tuner-style needle showing how far the heard pitch is from the nearest
-/// swarasthana, with the apasruti tolerance band highlighted.
-class CentsMeter extends StatelessWidget {
-  const CentsMeter({super.key, required this.centsOff, required this.active});
-
-  final double centsOff;
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: active
-          ? '${formatCents(centsOff)} cents from swarasthana'
-          : 'No pitch',
-      child: SizedBox(
-        height: 44,
-        width: double.infinity,
-        child: CustomPaint(
-          painter: _CentsMeterPainter(
-            centsOff: centsOff.clamp(-50.0, 50.0),
-            active: active,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CentsMeterPainter extends CustomPainter {
-  _CentsMeterPainter({required this.centsOff, required this.active});
-
-  final double centsOff;
-  final bool active;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final barTop = 8.0;
-    final barHeight = size.height - 24;
-    double xFor(double cents) => (cents + 50) / 100 * size.width;
-
-    final track = RRect.fromRectAndRadius(
-      Rect.fromLTWH(0, barTop, size.width, barHeight),
-      const Radius.circular(6),
-    );
-    canvas.drawRRect(track, Paint()..color = SwaraColors.midnightBg);
-
-    const tolerance = kApasrutiToleranceCents;
-    canvas.drawRect(
-      Rect.fromLTRB(
-        xFor(-tolerance),
-        barTop,
-        xFor(tolerance),
-        barTop + barHeight,
-      ),
-      Paint()..color = SwaraColors.emeraldMatch.withValues(alpha: 0.25),
-    );
-    canvas.drawRRect(
-      track,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..color = SwaraColors.borderGold,
-    );
-
-    final tickPaint = Paint()
-      ..color = Colors.white38
-      ..strokeWidth = 1;
-    for (final cents in const [-50, -25, 0, 25, 50]) {
-      final x = xFor(cents.toDouble()).clamp(0.5, size.width - 0.5);
-      canvas.drawLine(
-        Offset(x, barTop + barHeight),
-        Offset(x, barTop + barHeight + 4),
-        tickPaint,
-      );
-      final text = TextPainter(
-        text: TextSpan(
-          text: cents == 0 ? '0' : formatCents(cents),
-          style: const TextStyle(fontSize: 9, color: Colors.white54),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      final left = (x - text.width / 2).clamp(0.0, size.width - text.width);
-      text.paint(canvas, Offset(left, barTop + barHeight + 4));
-    }
-
-    if (!active) return;
-    final x = xFor(centsOff);
-    final color = centsOff.abs() <= tolerance
-        ? SwaraColors.emeraldMatch
-        : SwaraColors.warmAmber;
-    canvas.drawLine(
-      Offset(x, barTop - 4),
-      Offset(x, barTop + barHeight + 2),
-      Paint()
-        ..color = color
-        ..strokeWidth = 3
-        ..strokeCap = StrokeCap.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_CentsMeterPainter oldDelegate) =>
-      oldDelegate.centsOff != centsOff || oldDelegate.active != active;
 }

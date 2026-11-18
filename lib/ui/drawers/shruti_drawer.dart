@@ -2,11 +2,10 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../studio/studio_controller.dart';
 import '../../theme/swara_theme.dart';
-import '../widgets/drone_controls.dart';
+import '../widgets/practice_audio_controls.dart';
 
-/// Right drawer with the shruti box mixer.
-class ShrutiDrawer extends StatelessWidget {
-  const ShrutiDrawer({super.key, required this.controller});
+class PracticeAudioDrawer extends StatelessWidget {
+  const PracticeAudioDrawer({super.key, required this.controller});
 
   final StudioController controller;
 
@@ -26,7 +25,7 @@ class ShrutiDrawer extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Shruti Drone Mixer',
+                      'Practice audio',
                       style: TextStyle(
                         fontFamily: 'serif',
                         fontSize: 18,
@@ -41,15 +40,10 @@ class ShrutiDrawer extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Text(
-                  'Choose between a Pure Single Note reference or a '
-                  'Multi-Note Tambura chord.',
-                  style: TextStyle(fontSize: 12, color: Colors.white70),
-                ),
                 const SizedBox(height: 16),
                 Expanded(
                   child: SingleChildScrollView(
-                    child: DroneControls(controller: controller),
+                    child: PracticeAudioControls(controller: controller),
                   ),
                 ),
               ],

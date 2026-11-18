@@ -6,8 +6,6 @@ import 'package:swaraguru/models/models.dart';
 import 'package:swaraguru/pitch/swara_identifier.dart';
 import 'package:swaraguru/pitch/yin_pitch_detector.dart';
 
-import 'support/fakes.dart';
-
 const double sampleRate = 44100;
 
 Float64List tone(double hz, {List<double> harmonics = const [1]}) =>
@@ -69,12 +67,25 @@ void main() {
   });
 
   group('SwaraIdentifier', () {
-    final catalog = loadTestCatalog();
-    final saHz = kDefaultShruti.frequencyHz;
-    final identifier = SwaraIdentifier(
-      saHz: saHz,
-      scale: catalog.scaleFor(catalog.defaultRaga),
+    final scale = RagaScale(
+      const Raga(
+        name: 'Mayamalavagowla',
+        arohanam: [
+          SwaraNote(Swara.s),
+          SwaraNote(Swara.r1),
+          SwaraNote(Swara.g3),
+          SwaraNote(Swara.m1),
+          SwaraNote(Swara.p),
+          SwaraNote(Swara.d1),
+          SwaraNote(Swara.n3),
+          SwaraNote(Swara.s, 1),
+        ],
+        avarohanam: [],
+        melakarta: 15,
+      ),
     );
+    final saHz = kDefaultShruti.frequencyHz;
+    final identifier = SwaraIdentifier(saHz: saHz, scale: scale);
 
     test('names swaras in every octave', () {
       final tara = identifier.identify(saHz * 2);
@@ -111,13 +122,39 @@ void main() {
 
       final flat = grade(shifted(g3, -30));
       expect(flat.status, NoteMatchStatus.apasruti);
-      expect(flat.message, 'Apasruti: -30 cents drift on G3');
+      expect(flat.message, 'G3 was a little too low.');
 
       final wrong = grade(Swara.m1.frequencyFor(saHz));
       expect(wrong.status, NoteMatchStatus.wrongSwara);
       expect(wrong.message, 'Sang M1 (Shuddha Madhyamam) instead of G3');
 
       expect(grade(null).status, NoteMatchStatus.noVoice);
+    });
+
+    test('applies the selected percentage in either direction and octave', () {
+      const expected = SwaraNote(Swara.s);
+      for (final tolerance in [0.0, 1.5, 3.0]) {
+        final adjustable = SwaraIdentifier(
+          saHz: saHz,
+          scale: scale,
+          tolerancePercent: tolerance,
+        );
+        for (final octave in [0.5, 1.0, 2.0]) {
+          for (final direction in [-1, 1]) {
+            StepPitchEvaluation grade(double percent) => adjustable.evaluate(
+              stepIndex: 0,
+              expected: expected,
+              sungFrequencyHz: saHz * octave * (1 + direction * percent / 100),
+            );
+            expect(grade(tolerance).status, NoteMatchStatus.match);
+            expect(grade(tolerance).sung?.swara, Swara.s);
+            expect(
+              grade(tolerance + 0.01).status,
+              isNot(NoteMatchStatus.match),
+            );
+          }
+        }
+      }
     });
   });
 

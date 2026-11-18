@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:swaraguru/app.dart';
+import 'package:swaraguru/audio/metronome_audio.dart';
 import 'package:swaraguru/audio/swara_audio.dart';
 import 'package:swaraguru/models/models.dart';
 import 'package:swaraguru/pitch/pitch_source.dart';
@@ -25,6 +26,43 @@ typedef PlayedNote = ({
   Duration duration,
   SwaraInstrument instrument,
 });
+
+class FakeMetronomeAudio implements MetronomeAudio {
+  final _playing = StreamController<bool>.broadcast();
+  final tempos = <int>[];
+  int stops = 0;
+  double? volume;
+  bool disposed = false;
+
+  @override
+  Stream<bool> get playing => _playing.stream;
+
+  @override
+  Future<void> play(int bpm, {required double volume}) async {
+    tempos.add(bpm);
+    this.volume = volume;
+    _playing.add(true);
+  }
+
+  @override
+  Future<void> setVolume(double volume) async {
+    this.volume = volume;
+  }
+
+  void pauseFromMediaControls() => _playing.add(false);
+
+  @override
+  Future<void> stop() async {
+    stops++;
+    _playing.add(false);
+  }
+
+  @override
+  Future<void> dispose() async {
+    disposed = true;
+    await _playing.close();
+  }
+}
 
 class FakeSwaraAudio implements SwaraAudio {
   bool supported = true;
@@ -80,6 +118,9 @@ class FakeSwaraAudio implements SwaraAudio {
 }
 
 class FakePitchSource implements PitchSource {
+  @override
+  Duration readingInterval = const Duration(microseconds: 23220);
+
   Object? failWith;
   int starts = 0;
   int stops = 0;
@@ -140,6 +181,7 @@ Future<void> pumpStudio(
   WidgetTester tester, {
   FakeSwaraAudio? audio,
   FakePitchSource? pitchSource,
+  FakeMetronomeAudio? metronome,
   Size size = const Size(1600, 1200),
 }) async {
   tester.view.physicalSize = size;
@@ -153,6 +195,7 @@ Future<void> pumpStudio(
         catalog: loadTestCatalog(),
         audio: audio ?? FakeSwaraAudio(),
         pitchSource: pitchSource ?? FakePitchSource(),
+        metronome: metronome,
       ),
     ),
   );

@@ -7,9 +7,14 @@ import 'live_pitch_readout.dart';
 
 /// Live swara readout plus matched / apasruti / wrong-swara counters.
 class EvaluationSummaryBanner extends StatelessWidget {
-  const EvaluationSummaryBanner({super.key, required this.controller});
+  const EvaluationSummaryBanner({
+    super.key,
+    required this.controller,
+    this.showPitch = true,
+  });
 
   final StudioController controller;
+  final bool showPitch;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,7 @@ class EvaluationSummaryBanner extends StatelessWidget {
           spacing: 16,
           runSpacing: 12,
           children: [
-            LivePitchReadout(display: controller.pitchDisplay),
+            if (showPitch) LivePitchReadout(display: controller.pitchDisplay),
             if (total > 0)
               Wrap(
                 spacing: 8,
@@ -40,7 +45,7 @@ class EvaluationSummaryBanner extends StatelessWidget {
                   ),
                   _CountChip(
                     color: SwaraColors.warmAmber,
-                    label: 'Apasruti: ${count(NoteMatchStatus.apasruti)}',
+                    label: 'Pitch drift: ${count(NoteMatchStatus.apasruti)}',
                   ),
                   _CountChip(
                     color: SwaraColors.crimsonRobes,

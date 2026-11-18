@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:swaraguru/models/models.dart';
+import 'package:swaraguru/studio/pitch_display.dart';
 import 'package:swaraguru/studio/studio_controller.dart';
 
 import 'support/fakes.dart';
@@ -47,7 +48,7 @@ void main() {
         tokens: ['S', ',', 'R', 'G', ',', ','],
       );
       final step = controller.stepDuration;
-      expect(step, const Duration(microseconds: 882353));
+      expect(step, const Duration(seconds: 1));
 
       await controller.playReference();
       await tester.pump(step * 6);
@@ -156,7 +157,7 @@ void main() {
         ],
       );
       expect(results[1]!.sung!.label, 'R2');
-      expect(results[2]!.message, 'Apasruti: +40 cents drift on G3');
+      expect(results[2]!.message, 'G3 was a little too high.');
       expect(results[4]!.sung, const SwaraNote(Swara.p, 1));
 
       expect(controller.isCoaching, isFalse);
@@ -256,6 +257,57 @@ void main() {
     });
   });
 
+  testWidgets('Live swara needs a quarter second and clears after silence', (
+    tester,
+  ) async {
+    await withController((controller, _, pitch) async {
+      await controller.toggleListening();
+      void emit(double? hz, int frames) {
+        for (var i = 0; i < frames; i++) {
+          pitch.emit(hz);
+        }
+      }
+
+      emit(saHz, 10);
+      expect(controller.pitchDisplay.value, PitchDisplay.listening);
+      emit(null, 1);
+      emit(saHz, 10);
+      expect(controller.pitchDisplay.value, PitchDisplay.listening);
+      emit(saHz, 1);
+      expect(controller.pitchDisplay.value.label, 'S');
+
+      final paHz = Swara.p.frequencyFor(saHz);
+      emit(paHz, 4);
+      emit(saHz, 8);
+      expect(controller.pitchDisplay.value.label, 'S');
+
+      emit(paHz, 12);
+      expect(controller.pitchDisplay.value.label, 'S');
+      emit(paHz, 1);
+      expect(controller.pitchDisplay.value.label, 'P');
+
+      emit(null, 14);
+      expect(controller.pitchDisplay.value.label, 'P');
+      emit(null, 1);
+      expect(controller.pitchDisplay.value, PitchDisplay.listening);
+    });
+  });
+
+  testWidgets('Live pitch hold follows audio time at a different cadence', (
+    tester,
+  ) async {
+    await withController((controller, _, pitch) async {
+      pitch.readingInterval = const Duration(milliseconds: 50);
+      await controller.toggleListening();
+      for (var i = 0; i < 4; i++) {
+        pitch.emit(saHz);
+      }
+      expect(controller.pitchDisplay.value, PitchDisplay.listening);
+      pitch.emit(saHz);
+      expect(controller.pitchDisplay.value.label, 'S');
+    });
+  });
+
   testWidgets('Tempo changes take effect at the next step of playback', (
     tester,
   ) async {
@@ -267,7 +319,7 @@ void main() {
       );
       final slow = controller.stepDuration;
       await controller.playReference();
-      controller.setBpm(136);
+      controller.setBpm(140);
       final fast = controller.stepDuration;
 
       await tester.pump(slow);
@@ -293,7 +345,7 @@ void main() {
       );
       final slow = controller.stepDuration;
       await controller.playReference();
-      controller.setBpm(136);
+      controller.setBpm(140);
       final fast = controller.stepDuration;
 
       await tester.pump(slow);
@@ -310,20 +362,18 @@ void main() {
     });
   });
 
-  testWidgets('Drone follows the selected Sa and fine tuning', (tester) async {
+  testWidgets('Single note follows Sa and a preset switches to Tampura', (
+    tester,
+  ) async {
     await withController((controller, audio, _) async {
       await controller.toggleDrone();
       final d = kShrutiPitches.firstWhere((s) => s.label == 'D');
       controller.selectShruti(d);
-      expect(audio.drone!.voices[1].frequencyHz, d.frequencyHz);
-
-      controller.setFineTune(10);
-      expect(
-        audio.drone!.voices[1].frequencyHz,
-        closeTo(shifted(d.frequencyHz, 10), 1e-9),
-      );
+      expect(audio.drone, droneVoices({d.frequencyHz: 1}));
+      expect(audio.drone!.instrument, SwaraInstrument.harmonium);
 
       controller.applyDronePreset(DronePreset.ma);
+      expect(audio.drone!.instrument, SwaraInstrument.tampura);
       expect(
         audio.drone,
         droneVoices({

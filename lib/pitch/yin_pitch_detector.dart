@@ -4,7 +4,8 @@ import 'dart:typed_data';
 import '../models/pitch_evaluation.dart';
 
 /// Monophonic fundamental-frequency estimator using the YIN algorithm
-/// (de Cheveigné & Kawahara, 2002).
+/// (de Cheveigné & Kawahara, 2002). Estimates a repeating period from time-domain
+/// samples rather than assuming the loudest harmonic is the sung pitch.
 class YinPitchDetector {
   YinPitchDetector({
     required this.sampleRate,
@@ -48,6 +49,8 @@ class YinPitchDetector {
         : _cmnd = Float64List(maxTau + 2);
     cmnd[0] = 1;
     var runningSum = 0.0;
+    // A repeating waveform nearly matches itself when shifted by one period.
+    // Divide each mismatch by the mean so far to avoid favoring tiny shifts.
     for (var tau = 1; tau <= maxTau + 1; tau++) {
       var diff = 0.0;
       for (var j = 0; j < window; j++) {
@@ -58,6 +61,8 @@ class YinPitchDetector {
       cmnd[tau] = runningSum == 0 ? 1 : diff * tau / runningSum;
     }
 
+    // Prefer the first clear dip: multiples of the period can also line up
+    // but would report the note an octave (or more) too low.
     var tau = -1;
     for (var t = minTau; t <= maxTau; t++) {
       if (cmnd[t] < threshold) {
@@ -70,6 +75,7 @@ class YinPitchDetector {
     }
     if (tau < 0) return null;
 
+    // The true period usually lies between samples; interpolate the dip.
     final refinedTau = _parabolicPeak(cmnd, tau);
     final frequency = sampleRate / refinedTau;
     if (frequency < minFrequencyHz || frequency > maxFrequencyHz) return null;
@@ -92,7 +98,9 @@ class YinPitchDetector {
   }
 }
 
-/// Splits a little-endian 16-bit PCM byte stream into overlapping frames.
+/// Splits little-endian 16-bit PCM into overlapping, normalized sample frames.
+///
+/// Input chunks need not align with sample or frame boundaries.
 class Pcm16Framer {
   Pcm16Framer({this.frameSize = 2048, this.hopSize = 1024})
     : assert(hopSize > 0 && hopSize <= frameSize),
@@ -134,6 +142,8 @@ class Pcm16Framer {
     _buffer[_filled++] = sample;
     if (_filled < frameSize) return;
     frames.add(Float64List.fromList(_buffer));
+    // Keep the overlap so a new estimate can be made every hop instead of
+    // waiting for an entirely fresh analysis window.
     _buffer.setRange(0, frameSize - hopSize, _buffer, hopSize);
     _filled = frameSize - hopSize;
   }

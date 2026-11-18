@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../audio/metronome_audio.dart';
 import '../audio/swara_audio.dart';
 import '../models/models.dart';
 import '../pitch/pitch_source.dart';
@@ -12,7 +13,6 @@ import 'screens/drone_lab_screen.dart';
 import 'screens/info_pages.dart';
 import 'screens/pitch_coach_screen.dart';
 import 'screens/varisai_studio_screen.dart';
-import 'widgets/hero_banner.dart';
 import 'widgets/logo_emblem.dart';
 import 'widgets/version_badge.dart';
 
@@ -24,6 +24,7 @@ class SwaraGuruAdaptiveScaffold extends StatefulWidget {
     required this.catalog,
     this.audio,
     this.pitchSource,
+    this.metronome,
   });
 
   final CarnaticCatalog catalog;
@@ -33,6 +34,7 @@ class SwaraGuruAdaptiveScaffold extends StatefulWidget {
 
   /// Overrides the microphone pitch source (used by tests).
   final PitchSource? pitchSource;
+  final MetronomeAudio? metronome;
 
   @override
   State<SwaraGuruAdaptiveScaffold> createState() =>
@@ -54,6 +56,7 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
       catalog: widget.catalog,
       audio: widget.audio,
       pitchSource: widget.pitchSource,
+      metronome: widget.metronome,
     )..onNotice = _showNotice;
   }
 
@@ -108,7 +111,9 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
               controller: _controller,
               title: _title,
               isMobile: isMobile,
-              onHome: () => _selectScreen(StudioScreen.varisai),
+              onHome: _infoPage != null || _screen != StudioScreen.varisai
+                  ? () => _selectScreen(StudioScreen.varisai)
+                  : null,
               onOpenDrawer: () => _scaffoldKey.currentState?.openDrawer(),
               onOpenEndDrawer: () => _scaffoldKey.currentState?.openEndDrawer(),
             ),
@@ -122,7 +127,7 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
               onSelectLesson: _selectLesson,
               onAddCustomLesson: _addCustomLesson,
             ),
-            endDrawer: ShrutiDrawer(controller: _controller),
+            endDrawer: PracticeAudioDrawer(controller: _controller),
             body: Row(
               children: [
                 if (!isMobile) ...[
@@ -187,29 +192,14 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
       return InfoPageView(page: infoPage, readme: _readme);
     }
     final controller = _controller;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SwaraGuruHeroBanner(
-          activeShruti: controller.shruti,
-          saHz: controller.saHz,
-          raga: controller.raga,
-          dronePlaying: controller.dronePlaying,
-          droneSummary: controller.drone.summary,
-          onToggleDrone: controller.toggleDrone,
-          onOpenShrutiDrawer: () => _scaffoldKey.currentState?.openEndDrawer(),
-        ),
-        const SizedBox(height: 16),
-        switch (_screen) {
-          StudioScreen.varisai => VarisaiStudioScreen(
-            controller: controller,
-            onAddCustomLesson: _addCustomLesson,
-          ),
-          StudioScreen.pitchCoach => PitchCoachScreen(controller: controller),
-          StudioScreen.droneLab => DroneLabScreen(controller: controller),
-        },
-      ],
-    );
+    return switch (_screen) {
+      StudioScreen.varisai => VarisaiStudioScreen(
+        controller: controller,
+        onAddCustomLesson: _addCustomLesson,
+      ),
+      StudioScreen.pitchCoach => PitchCoachScreen(controller: controller),
+      StudioScreen.droneLab => PracticeAudioScreen(controller: controller),
+    };
   }
 }
 
@@ -226,16 +216,20 @@ class _StudioAppBar extends StatelessWidget implements PreferredSizeWidget {
   final StudioController controller;
   final String title;
   final bool isMobile;
-  final VoidCallback onHome;
+  final VoidCallback? onHome;
   final VoidCallback onOpenDrawer;
   final VoidCallback onOpenEndDrawer;
 
+  static const _sessionBarHeight = 48.0;
+
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize =>
+      const Size.fromHeight(kToolbarHeight + _sessionBarHeight);
 
   @override
   Widget build(BuildContext context) {
-    final dronePlaying = controller.dronePlaying;
+    final audioPlaying = controller.dronePlaying || controller.metronomeOn;
+    final ragaLabel = 'Raga: ${controller.raga.name}';
     return AppBar(
       leading: IconButton(
         icon: const Icon(Icons.menu_rounded),
@@ -276,66 +270,68 @@ class _StudioAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        IconButton(
-          tooltip: 'Home (Varisai Studio)',
-          onPressed: onHome,
-          icon: const Icon(Icons.home_rounded),
-        ),
-        PopupMenuButton<ShrutiPitch>(
-          tooltip: 'Select Base Sa (Adhara Shadjam)',
-          initialValue: controller.shruti,
-          onSelected: controller.selectShruti,
-          itemBuilder: (_) => [
-            for (final shruti in kShrutiPitches)
-              PopupMenuItem(
-                value: shruti,
-                child: Text(
-                  'Sa = ${shruti.label} • ${shruti.kattaiName} '
-                  '(${shruti.frequencyHz.toStringAsFixed(2)} Hz)',
-                ),
-              ),
-          ],
-          child: _AppBarPill(
-            icon: Icons.music_note,
-            iconColor: SwaraColors.royalGold,
-            label: 'Sa: ${controller.shruti.label}',
+        if (onHome != null)
+          IconButton(
+            tooltip: 'Home (Varisai Studio)',
+            onPressed: onHome,
+            icon: const Icon(Icons.home_rounded),
           ),
-        ),
-        const SizedBox(width: 8),
-        if (!isMobile) ...[
-          PopupMenuButton<KaalamSpeed>(
-            tooltip: 'Select Kaalam Tempo (1, 2, 3, 4)',
-            initialValue: controller.kaalam,
-            onSelected: controller.selectKaalam,
-            itemBuilder: (_) => [
-              for (final kaalam in kKaalamOptions)
-                PopupMenuItem(
-                  value: kaalam,
-                  child: Text(
-                    '${kaalam.name} (${kaalam.swarasPerBeat} Swaras/Beat)',
-                  ),
-                ),
-            ],
-            child: _AppBarPill(
-              icon: Icons.speed,
-              iconColor: SwaraColors.cyanWave,
-              label:
-                  'Tempo ${controller.kaalam.kaalam} '
-                  '(${controller.kaalam.swarasPerBeat}x)',
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
         IconButton(
-          tooltip: 'Open Shruti Box EndDrawer',
+          tooltip: 'Open practice audio',
           onPressed: onOpenEndDrawer,
           icon: Icon(
-            dronePlaying ? Icons.volume_up_rounded : Icons.tune_rounded,
-            color: dronePlaying ? SwaraColors.royalGold : Colors.white70,
+            audioPlaying ? Icons.volume_up_rounded : Icons.headphones_rounded,
+            color: audioPlaying ? SwaraColors.royalGold : Colors.white70,
           ),
         ),
         const SizedBox(width: 6),
       ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(_sessionBarHeight),
+        child: SizedBox(
+          height: _sessionBarHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Tooltip(
+                    message: ragaLabel,
+                    excludeFromSemantics: true,
+                    child: Text(
+                      ragaLabel,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                PopupMenuButton<ShrutiPitch>(
+                  tooltip: 'Select Base Sa (Adhara Shadjam)',
+                  initialValue: controller.shruti,
+                  onSelected: controller.selectShruti,
+                  itemBuilder: (_) => [
+                    for (final shruti in kShrutiPitches)
+                      PopupMenuItem(
+                        value: shruti,
+                        child: Text(
+                          'Sa = ${shruti.label} • ${shruti.kattaiName} '
+                          '(${shruti.frequencyHz.toStringAsFixed(2)} Hz)',
+                        ),
+                      ),
+                  ],
+                  child: _AppBarPill(
+                    icon: Icons.music_note,
+                    iconColor: SwaraColors.royalGold,
+                    label: 'Sa: ${controller.shruti.label}',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -361,6 +357,7 @@ class _AppBarPill extends StatelessWidget {
         border: Border.all(color: SwaraColors.borderGold),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: iconColor),
           const SizedBox(width: 4),
