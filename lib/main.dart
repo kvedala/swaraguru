@@ -12,10 +12,12 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'app.dart';
+import 'audio/metronome_audio.dart';
 import 'models/carnatic_catalog.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (MetronomeAudio.isSupported) await MetronomeAudio.initialise();
   final catalog = await CarnaticCatalog.load(rootBundle);
   runApp(SwaraGuruApp(catalog: catalog));
 }
