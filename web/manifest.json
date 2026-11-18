@@ -3,9 +3,9 @@
     "short_name": "swaraguru",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#101326",
+    "theme_color": "#101326",
+    "description": "Learn and practice Carnatic music with interactive lessons, pitch coaching, and a digital Shruti drone.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

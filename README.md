@@ -243,6 +243,12 @@ for models, and `markdown` with `url_launcher` for the Help page.
 
 ## Brand palette
 
+The in-app emblem, favicon, and web install icons are derived from
+[`swaraguru_logo3.png`](assets/images/swaraguru_logo3.png). Use the full
+square artwork for standard icons and add padding only to the maskable variants.
+Keep the Flutter-bundled emblem in `assets/images/` and standalone browser
+icons in `web/`.
+
 The Flutter theme defines these colors in `SwaraColors`:
 
 | Token | Hex | Usage |
