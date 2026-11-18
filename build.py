@@ -38,7 +38,9 @@ def main() -> None:
     if match is None:
         raise SystemExit("pubspec.yaml does not contain a three-part version.")
 
-    build_number = args.build_number or get_build_number()
+    build_number = (
+        args.build_number if args.build_number is not None else get_build_number()
+    )
     if build_number < 1:
         raise SystemExit("The build number must be a positive integer.")
 
