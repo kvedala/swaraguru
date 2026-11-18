@@ -30,6 +30,7 @@ class YinPitchDetector {
   /// Returns the pitch of [frame], or `null` for silence or unpitched sound.
   /// The frame must hold at least two analysis windows of samples.
   PitchReading? detect(Float64List frame) {
+    // Compare two equal windows so every lag uses the same number of samples.
     final window = frame.length ~/ 2;
     if (window < 8) return null;
 
@@ -40,10 +41,12 @@ class YinPitchDetector {
     final rms = math.sqrt(energy / frame.length);
     if (rms < silenceRms) return null;
 
+    // A period in samples is inversely proportional to pitch frequency.
     final minTau = math.max(2, (sampleRate / maxFrequencyHz).floor());
     final maxTau = math.min(window - 1, (sampleRate / minFrequencyHz).ceil());
     if (maxTau <= minTau + 1) return null;
 
+    // Reuse scratch space across frames to avoid allocating on every hop.
     final cmnd = _cmnd?.length == maxTau + 2
         ? _cmnd!
         : _cmnd = Float64List(maxTau + 2);
@@ -82,11 +85,13 @@ class YinPitchDetector {
 
     return PitchReading(
       frequencyHz: frequency,
+      // Lower normalized mismatch means the waveform repeats more clearly.
       clarity: (1 - cmnd[tau]).clamp(0.0, 1.0),
       rms: rms,
     );
   }
 
+  /// Refines a discrete lag to a fractional-sample period using its local dip.
   static double _parabolicPeak(Float64List values, int index) {
     if (index <= 0 || index >= values.length - 1) return index.toDouble();
     final left = values[index - 1];
@@ -128,11 +133,13 @@ class Pcm16Framer {
     return frames;
   }
 
+  /// Discards a partial frame before the next capture starts.
   void reset() {
     _filled = 0;
     _pendingLowByte = null;
   }
 
+  // PCM input is signed little-endian; normalize it to the detector's [-1, 1].
   static double _toSample(int low, int high) {
     final value = (high << 8) | low;
     return (value >= 0x8000 ? value - 0x10000 : value) / 32768.0;

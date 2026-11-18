@@ -9,7 +9,10 @@ import 'yin_pitch_detector.dart';
 /// A live stream of pitch readings, usually from the microphone. A `null`
 /// reading means silence or an unpitched sound.
 abstract class PitchSource {
-  /// Amount of audio between consecutive readings, independent of delivery.
+  /// Audio time between readings, independent of when the stream delivers them.
+  ///
+  /// Coaching uses this to measure note duration even when audio chunks arrive
+  /// in delayed batches.
   Duration get readingInterval;
 
   /// Starts listening. Throws [PitchSourceException] when the input is
@@ -59,6 +62,7 @@ class MicrophonePitchSource implements PitchSource {
 
   @override
   Future<Stream<PitchReading?>> start() async {
+    // Clear any earlier capture before creating new stream state.
     await stop();
     final recorder = _recorder ??= AudioRecorder();
 
@@ -105,6 +109,7 @@ class MicrophonePitchSource implements PitchSource {
 
     _subscription = audio.listen(
       (chunk) {
+        // Recorder chunks need not align to either PCM samples or analysis hops.
         for (final frame in framer.add(chunk)) {
           if (readings.isClosed) return;
           readings.add(detector.detect(frame));
@@ -119,6 +124,7 @@ class MicrophonePitchSource implements PitchSource {
 
   @override
   Future<void> stop() async {
+    // Stop forwarding input before closing the output stream and recorder.
     await _subscription?.cancel();
     _subscription = null;
     await _readings?.close();

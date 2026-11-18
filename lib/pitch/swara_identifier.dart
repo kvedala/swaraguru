@@ -24,8 +24,8 @@ class SwaraIdentifier {
 
   /// Finds the nearest swarasthana to [frequencyHz] in any octave.
   IdentifiedSwara identify(double frequencyHz) {
-    // On a logarithmic scale, octave jumps add a constant 1200. Use the
-    // equal-tempered position as a starting point, then compare actual ratios.
+    // The equal-tempered grid only narrows the search; actual swara ratios can
+    // differ, so compare against the raga's positions in cents.
     final cents = centsForRatio(frequencyHz / saHz);
     final estimate = (cents / 100).round();
 
@@ -111,17 +111,60 @@ class SwaraIdentifier {
   }
 }
 
-/// Robust pitch for one sung step: discards the attack (first third of the
-/// readings) and returns the median of the remainder.
-double? stablePitch(List<double> frequencies) {
+/// Robust pitch for one sung step.
+///
+/// Settled notes discard the attack; marked or detected glides use the tail
+/// to represent the destination swara.
+double? stablePitch(List<double> frequencies, {bool glidingToTarget = false}) {
   if (frequencies.isEmpty) return null;
-  final settled = frequencies.length >= 3
-      ? frequencies.sublist(frequencies.length ~/ 3)
-      : List.of(frequencies);
-  settled.sort();
-  final middle = settled.length ~/ 2;
+  final followsGlide =
+      glidingToTarget || _containsDirectionalGlide(frequencies);
+  final List<double> settled;
+  if (followsGlide && frequencies.length >= 4) {
+    // The ending samples represent the destination, not the midpoint of travel.
+    final tailCount = math.max(3, (frequencies.length / 4).ceil());
+    settled = frequencies.sublist(frequencies.length - tailCount);
+  } else if (frequencies.length >= 3) {
+    settled = frequencies.sublist(frequencies.length ~/ 3);
+  } else {
+    settled = List.of(frequencies);
+  }
+  return _medianFrequency(settled);
+}
+
+bool _containsDirectionalGlide(List<double> frequencies) {
+  if (frequencies.length < 5) return false;
+
+  // Compare edge medians so isolated detector jumps do not look like a glide.
+  final edgeCount = math.max(2, (frequencies.length / 4).ceil());
+  final initial = _medianFrequency(frequencies.take(edgeCount).toList());
+  final terminal = _medianFrequency(
+    frequencies.skip(frequencies.length - edgeCount).toList(),
+  );
+  final drift = centsForRatio(terminal / initial);
+  if (drift.abs() < 35) return false;
+
+  // Require consistent movement as well as net drift to reject small vibrato.
+  final direction = drift > 0 ? 1 : -1;
+  var meaningfulSteps = 0;
+  var matchingSteps = 0;
+  for (var i = 1; i < frequencies.length; i++) {
+    final delta = centsForRatio(frequencies[i] / frequencies[i - 1]);
+    if (delta.abs() < 4) continue;
+    meaningfulSteps++;
+    if ((delta > 0 ? 1 : -1) == direction) matchingSteps++;
+  }
+
+  final minimumSteps = math.max(2, ((frequencies.length - 1) / 3).ceil());
+  return meaningfulSteps >= minimumSteps &&
+      matchingSteps / meaningfulSteps >= 0.65;
+}
+
+double _medianFrequency(List<double> frequencies) {
+  frequencies.sort();
+  final middle = frequencies.length ~/ 2;
   // The geometric mean is the midpoint on the logarithmic pitch scale.
-  return settled.length.isOdd
-      ? settled[middle]
-      : math.sqrt(settled[middle - 1] * settled[middle]);
+  return frequencies.length.isOdd
+      ? frequencies[middle]
+      : math.sqrt(frequencies[middle - 1] * frequencies[middle]);
 }

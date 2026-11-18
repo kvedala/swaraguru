@@ -640,7 +640,11 @@ class StudioController extends ChangeNotifier {
     _evaluations[index] = identifier.evaluate(
       stepIndex: index,
       expected: expected,
-      sungFrequencyHz: stablePitch(frequencies),
+      sungFrequencyHz: stablePitch(
+        frequencies,
+        // A written glide is a hint; stablePitch also detects unmarked glides.
+        glidingToTarget: _steps[index].glidesFromPrevious,
+      ),
     );
   }
 

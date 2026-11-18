@@ -203,6 +203,37 @@ void main() {
     });
   });
 
+  testWidgets('Microphone coaching grades an unmarked singer-added glide', (
+    tester,
+  ) async {
+    await withController((controller, _, pitch) async {
+      controller.addCustomLesson(
+        title: 'Glide coaching',
+        raga: catalog.defaultRaga,
+        tokens: ['S', 'R'],
+      );
+      final step = controller.stepDuration;
+      final targetHz = Swara.r1.frequencyFor(saHz);
+      await controller.startCoaching();
+
+      for (var i = 0; i < 12; i++) {
+        pitch.emit(saHz);
+      }
+      await tester.pump(step);
+
+      for (var i = 0; i < 12; i++) {
+        pitch.emit(saHz * math.pow(targetHz / saHz, i / 11));
+      }
+      for (var i = 0; i < 4; i++) {
+        pitch.emit(targetHz);
+      }
+      await tester.pump(step);
+
+      expect(controller.evaluations[1]!.status, NoteMatchStatus.match);
+      expect(controller.evaluations[1]!.sung, const SwaraNote(Swara.r1));
+    });
+  });
+
   testWidgets('Simulated student sings R2 for R1 without the microphone', (
     tester,
   ) async {
