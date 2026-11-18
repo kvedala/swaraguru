@@ -496,12 +496,11 @@ class StudioController extends ChangeNotifier {
         stopTransport();
         return;
       }
-      // Reference notes are scheduled through following karvai cells (holds).
-      // Keep those cells at the original tempo until that sustain ends.
-      final nextStepIsKarvai =
-          cursor < _steps.length && _steps[cursor].isKarvai;
+      // Holds and glides have already been scheduled with the previous attack.
+      final nextStepContinuesVoice = _steps[cursor].isKarvai ||
+          _steps[cursor].glidesFromPrevious;
       if (stepDuration != duration &&
-          (mode != TransportMode.reference || !nextStepIsKarvai)) {
+          (mode != TransportMode.reference || !nextStepContinuesVoice)) {
         duration = stepDuration;
         _transportTimer?.cancel();
         _transportTimer = Timer.periodic(duration, (_) => tick());
@@ -550,11 +549,21 @@ class StudioController extends ChangeNotifier {
     if (!_isListening) {
       pitchDisplay.value = PitchDisplay.reference(note, frequency);
     }
-    if (step.isKarvai) return;
+    if (step.isKarvai || step.glidesFromPrevious) return;
 
+    final glides = <PitchGlide>[];
     var sustain = 1;
-    while (index + sustain < _steps.length &&
-        _steps[index + sustain].isKarvai) {
+    while (index + sustain < _steps.length) {
+      final next = _steps[index + sustain];
+      if (next.glidesFromPrevious) {
+        glides.add((
+          offset: duration * sustain,
+          duration: duration * 0.25,
+          frequencyHz: next.note!.frequencyFor(saHz),
+        ));
+      } else if (!next.isKarvai) {
+        break;
+      }
       sustain++;
     }
     try {
@@ -563,6 +572,7 @@ class StudioController extends ChangeNotifier {
         // Leave a small gap so consecutive notes have distinct attacks.
         duration: duration * (sustain * 0.94),
         instrument: _noteInstrument,
+        glides: glides,
       );
     } catch (error) {
       debugPrint('Unable to play swara: $error');

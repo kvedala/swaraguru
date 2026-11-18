@@ -4,6 +4,8 @@ import 'swara_audio_stub.dart'
     if (dart.library.js_interop) 'swara_audio_web.dart'
     as platform;
 
+typedef PitchGlide = ({Duration offset, Duration duration, double frequencyHz});
+
 /// Platform interface for the Shruti drone and synthesized swara playback.
 ///
 /// Drones and lesson notes have independent lifecycles. The background click
@@ -25,12 +27,13 @@ abstract class SwaraAudio {
 
   void stopDrone();
 
-  /// Plays one swara at [frequencyHz] on [instrument] for [duration].
+  /// Starts one voice. [glides] can change its pitch without a fresh attack.
   void playNote({
     required double frequencyHz,
     required Duration duration,
     required SwaraInstrument instrument,
     double volume = 0.8,
+    List<PitchGlide> glides = const [],
   });
 
   /// Silences any swaras started by [playNote].

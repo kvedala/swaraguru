@@ -72,6 +72,7 @@ class FakeSwaraAudio implements SwaraAudio {
   int stopNotesCalls = 0;
   DroneSound? drone;
   final List<PlayedNote> notes = [];
+  final List<List<PitchGlide>> noteGlides = [];
 
   @override
   bool get isSupported => supported;
@@ -102,11 +103,11 @@ class FakeSwaraAudio implements SwaraAudio {
     required Duration duration,
     required SwaraInstrument instrument,
     double volume = 0.8,
-  }) => notes.add((
-    frequencyHz: frequencyHz,
-    duration: duration,
-    instrument: instrument,
-  ));
+    List<PitchGlide> glides = const [],
+  }) {
+    notes.add((frequencyHz: frequencyHz, duration: duration, instrument: instrument));
+    noteGlides.add(glides);
+  }
 
   @override
   void stopNotes() => stopNotesCalls++;

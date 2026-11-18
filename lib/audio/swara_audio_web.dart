@@ -215,6 +215,7 @@ class WebSwaraAudio implements SwaraAudio {
     required Duration duration,
     required SwaraInstrument instrument,
     double volume = 0.8,
+    List<PitchGlide> glides = const [],
   }) {
     final context = _context;
     final bus = _notesBus;
@@ -234,6 +235,19 @@ class WebSwaraAudio implements SwaraAudio {
       destination: bus,
     );
     final gain = note.envelope.gain;
+    for (final oscillator in note.oscillators) {
+      final pitch = oscillator.frequency;
+      var previousHz = frequencyHz;
+      for (final glide in glides) {
+        final at = start + glide.offset.inMicroseconds / Duration.microsecondsPerSecond;
+        pitch.setValueAtTime(previousHz, at);
+        pitch.exponentialRampToValueAtTime(
+          glide.frequencyHz,
+          at + glide.duration.inMicroseconds / Duration.microsecondsPerSecond,
+        );
+        previousHz = glide.frequencyHz;
+      }
+    }
     if (timbre.isPlucked) {
       gain.setTargetAtTime(
         0,

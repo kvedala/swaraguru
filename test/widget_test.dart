@@ -511,6 +511,10 @@ void main() {
     await tapText(tester, 'Devi Sthuthi — Sree Saraswathi');
     expect(find.text('Devi Sthuthi — Sree Saraswathi'), findsOneWidget);
     expect(find.textContaining('Arabhi • Roopaka'), findsOneWidget);
+    final scroll = tester.state<ScrollableState>(find.byType(Scrollable));
+    scroll.position.jumpTo(260);
+    await tester.pump();
+    expect(find.byTooltip('Glide between swaras'), findsWidgets);
   });
 
   testWidgets('Beat strip fits one row and shows the current kriya', (

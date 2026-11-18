@@ -32,6 +32,7 @@ class _UnsupportedSwaraAudio implements SwaraAudio {
     required Duration duration,
     required SwaraInstrument instrument,
     double volume = 0.8,
+    List<PitchGlide> glides = const [],
   }) {}
 
   @override

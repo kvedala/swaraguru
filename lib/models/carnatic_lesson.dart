@@ -131,6 +131,7 @@ class CarnaticLesson {
     SwaraNote? previous;
     for (final (:token, :lyric, :startsRow, :startsCell) in _notation()) {
       final isKarvai = token.isKarvai;
+      final prior = previous;
       if (!isKarvai) previous = scale.resolve(token);
       steps.add(
         LessonStep(
@@ -140,6 +141,12 @@ class CarnaticLesson {
           lyric: lyric,
           startsRow: startsRow,
           startsCell: startsCell,
+          glidesFromPrevious: score != null &&
+              !startsCell &&
+              !isKarvai &&
+              prior != null &&
+              previous != null &&
+              !steps.last.isKarvai,
         ),
       );
     }
@@ -206,6 +213,7 @@ class LessonStep {
     this.lyric,
     this.startsRow = false,
     this.startsCell = false,
+    this.glidesFromPrevious = false,
   });
 
   final String token;
@@ -220,6 +228,9 @@ class LessonStep {
 
   /// Whether this starts a written notation cell within a score row.
   final bool startsCell;
+
+  /// Continues the previous pitched swara in the same Geetam notation cell.
+  final bool glidesFromPrevious;
 
   String get label => isKarvai ? ',' : note?.label ?? token;
 }

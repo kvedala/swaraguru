@@ -115,6 +115,10 @@ the active swara, and the compact beat strip highlights the beat and shows
 the current clap, finger count, or wave. Each beat marker has a tooltip
 with its full tala instruction.
 
+Combined swaras in a Geetam score cell have a shared underline in the grid.
+In web reference playback, adjacent pitched swaras in that cell glide
+without a new attack. A karvai holds the current pitch and breaks the glide.
+
 Open **Practice audio** from the headphones button in the header to start
 or stop the audible metronome. Its tempo uses the same BPM as the lesson.
 The metronome runs independently of the lesson, including in a background

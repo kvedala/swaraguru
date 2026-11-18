@@ -139,13 +139,17 @@ class _SwaraGridState extends State<SwaraGrid> {
         _rows = SliverChildBuilderDelegate(
           (_, row) {
             final start = boundaries[row];
-            final groups = <List<Widget>>[];
+            final groups = <({List<Widget> cells, bool glides})>[];
             for (var i = start; i < boundaries[row + 1]; i++) {
               if (i == start ||
                   (hasWrittenRows ? steps[i].startsCell : i % stepsPerBeat == 0)) {
-                groups.add([]);
+                groups.add((cells: [], glides: false));
               }
-              groups.last.add(cell(i));
+              final group = groups.last;
+              group.cells.add(cell(i));
+              if (!group.glides && steps[i].glidesFromPrevious) {
+                groups[groups.length - 1] = (cells: group.cells, glides: true);
+              }
             }
             return _NotationRow(gapBefore: row == 0 ? 0 : 12, groups: groups);
           },
@@ -189,7 +193,7 @@ class _NotationRow extends StatelessWidget {
   const _NotationRow({required this.gapBefore, required this.groups});
 
   final double gapBefore;
-  final List<List<Widget>> groups;
+  final List<({List<Widget> cells, bool glides})> groups;
 
   static const _groupSpacing = 8.0;
 
@@ -197,7 +201,7 @@ class _NotationRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = _swaraCellSize(context);
     final grouped =
-        groups.length > 1 && groups.any((group) => group.length > 1);
+        groups.length > 1 && groups.any((group) => group.cells.length > 1);
     final spacing = grouped ? _groupSpacing : _cellSpacing;
     return Padding(
       padding: EdgeInsets.only(top: gapBefore),
@@ -213,12 +217,25 @@ class _NotationRow extends StatelessWidget {
           Widget sized(Widget child) =>
               SizedBox(width: cellWidth, height: size.height, child: child);
 
-          Widget groupWidget(List<Widget> group) {
-            if (group.length == 1) return sized(group.single);
-            return Wrap(
+          Widget groupWidget(({List<Widget> cells, bool glides}) group) {
+            if (group.cells.length == 1) return sized(group.cells.single);
+            final notes = Wrap(
               spacing: _cellSpacing,
               runSpacing: _cellSpacing,
-              children: [for (final child in group) sized(child)],
+              children: [for (final child in group.cells) sized(child)],
+            );
+            if (!group.glides) return notes;
+            return Tooltip(
+              message: 'Glide between swaras',
+              child: DecoratedBox(
+                position: DecorationPosition.foreground,
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: SwaraColors.cyanWave, width: 2),
+                  ),
+                ),
+                child: notes,
+              ),
             );
           }
 

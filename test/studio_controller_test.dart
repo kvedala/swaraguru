@@ -71,6 +71,43 @@ void main() {
     });
   });
 
+  testWidgets('Geetam glides share an attack but karvais stay level', (
+    tester,
+  ) async {
+    await withController((controller, audio, _) async {
+      controller.selectLesson(
+        CarnaticLesson(
+          id: 'glide-test',
+          group: 'Geetam',
+          title: 'Glide test',
+          raga: catalog.defaultRaga.name,
+          score: const [
+            GeetamSection(name: 'Test', rows: [
+              [
+                GeetamCell(notation: 'S R , G', lyric: 'sa'),
+                GeetamCell(notation: 'M', lyric: 'ma'),
+              ],
+            ]),
+          ],
+        ),
+      );
+      final step = controller.stepDuration;
+      await controller.playReference();
+      expect(audio.notes.single.duration, step * (3 * 0.94));
+      expect(audio.noteGlides.single, [
+        (offset: step, duration: step * 0.25, frequencyHz: Swara.r1.frequencyFor(saHz)),
+      ]);
+      await tester.pump(step * 2);
+      expect(controller.activeStepIndex, 2);
+      expect(audio.notes, hasLength(1));
+      await tester.pump(step * 2);
+      expect(audio.notes.map((note) => note.frequencyHz), [
+        saHz, Swara.g3.frequencyFor(saHz), Swara.m1.frequencyFor(saHz),
+      ]);
+      expect(audio.noteGlides.skip(1), everyElement(isEmpty));
+    });
+  });
+
   testWidgets('Unsupported audio falls back to visual playback once', (
     tester,
   ) async {
