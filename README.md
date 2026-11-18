@@ -243,6 +243,12 @@ for models, and `markdown` with `url_launcher` for the Help page.
 
 ## Brand palette
 
+The in-app emblem, favicon, and web install icons are derived from
+[`swaraguru_logo3.png`](assets/images/swaraguru_logo3.png). Use the full
+square artwork for standard icons and add padding only to the maskable variants.
+Keep the Flutter-bundled emblem in `assets/images/` and standalone browser
+icons in `web/`.
+
 The Flutter theme defines these colors in `SwaraColors`:
 
 | Token | Hex | Usage |
@@ -277,6 +283,10 @@ One-time repository setup:
 Only the deployment job receives Pages write permissions. Deployments share a
 single `github-pages` concurrency group, so they run one at a time and never
 cancel an in-progress deployment.
+
+The build stamps the workflow run number into `pubspec.yaml` temporarily and
+restores the original file afterward. The web app shows the running version
+in the bottom-right corner and offers a reload when a newer build is available.
 
 ### Development testing
 
