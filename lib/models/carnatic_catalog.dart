@@ -17,17 +17,33 @@ class CarnaticCatalog {
       _$CarnaticCatalogFromJson(json);
 
   static const ragasAsset = 'assets/data/ragas.json';
-  static const lessonsAsset = 'assets/data/lessons.json';
+  static const lessonAssets = [
+    'assets/data/sarali_varisai.json',
+    'assets/data/janta_varisai.json',
+    'assets/data/dhatu_varisai.json',
+    'assets/data/geetams.json',
+  ];
   static const defaultRagaName = 'Mayamalavagowla';
 
   static Future<CarnaticCatalog> load(AssetBundle bundle) async {
-    final [ragas, lessons] = await Future.wait([
+    final [ragas, ...lessons] = await Future.wait([
       bundle.loadString(ragasAsset),
-      bundle.loadString(lessonsAsset),
+      for (final path in lessonAssets) bundle.loadString(path),
     ]);
+    return fromAssetContents(ragas, lessons);
+  }
+
+  static CarnaticCatalog fromAssetContents(
+    String ragas,
+    Iterable<String> lessons,
+  ) {
+    final ragaData = jsonDecode(ragas) as Map<String, dynamic>;
     return CarnaticCatalog.fromJson({
-      ...jsonDecode(ragas) as Map<String, dynamic>,
-      ...jsonDecode(lessons) as Map<String, dynamic>,
+      'ragas': ragaData['ragas'],
+      'lessons': [
+        for (final data in lessons)
+          ...(jsonDecode(data) as Map<String, dynamic>)['lessons'] as List,
+      ],
     });
   }
 

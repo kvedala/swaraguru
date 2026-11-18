@@ -94,7 +94,7 @@ void main() {
   testWidgets('Session raga re-resolves unnumbered swaras', (tester) async {
     await withController((controller, _, _) async {
       List<String> firstOctave() => [
-        for (final step in controller.steps.take(8)) step.label,
+        for (final step in controller.steps.skip(8).take(8)) step.label,
       ];
 
       expect(firstOctave(), ['S', 'R1', 'G3', 'M1', 'P', 'D1', 'N3', 'Ṡ']);

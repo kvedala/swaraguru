@@ -189,7 +189,7 @@ class SwaraCell extends StatelessWidget {
                 ),
               ),
               Text(
-                step.isKarvai ? '—' : note?.telugu ?? '?',
+                step.lyric ?? (step.isKarvai ? '—' : note?.telugu ?? '?'),
                 style: const TextStyle(
                   fontSize: 11,
                   color: SwaraColors.royalGold,

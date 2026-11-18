@@ -1,0 +1,311 @@
+{
+  "lessons": [
+    {
+      "id": "janta-1",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 1",
+      "combo": 1,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", "R R", "G G", "M M", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ Ṡ", "N N", "D D", "P P", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-2",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 2",
+      "combo": 2,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", "R R", "G G", "M M", "R R", "G G", "M M", "P P"],
+        ["G G", "M M", "P P", "D D", "M M", "P P", "D D", "N N"],
+        ["P P", "D D", "N N", "Ṡ Ṡ", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N N", "D D", "P P", "M M", "D D", "P P", "M M", "G G"],
+        ["P P", "M M", "G G", "R R", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-3",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 3",
+      "combo": 3,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", "R R", "G G", "R R", "S S", "R R", "G G", "M M"],
+        ["R R", "G G", "M M", "G G", "R R", "G G", "M M", "P P"],
+        ["G G", "M M", "P P", "M M", "G G", "M M", "P P", "D D"],
+        ["M M", "P P", "D D", "P P", "M M", "P P", "D D", "N N"],
+        ["P P", "D D", "N N", "D D", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ Ṡ", "N N", "D D", "N N", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N N", "D D", "P P", "D D", "N N", "D D", "P P", "M M"],
+        ["D D", "P P", "M M", "P P", "D D", "P P", "M M", "G G"],
+        ["P P", "M M", "G G", "M M", "P P", "M M", "G G", "R R"],
+        ["M M", "G G", "R R", "G G", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-4",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 4",
+      "combo": 4,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", "R S", "S R", "S R", "S S", "R R", "G G", "M M"],
+        ["R R", "G R", "R G", "R G", "R R", "G G", "M M", "P P"],
+        ["G G", "M G", "G M", "G M", "G G", "M M", "P P", "D D"],
+        ["M M", "P M", "M P", "M P", "M M", "P P", "D D", "N N"],
+        ["P P", "D P", "P D", "P D", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ Ṡ", "N Ṡ", "Ṡ N", "Ṡ N", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N N", "D N", "N D", "N D", "N N", "D D", "P P", "M M"],
+        ["D D", "P D", "D P", "D P", "D D", "P P", "M M", "G G"],
+        ["P P", "M P", "P M", "P M", "P P", "M M", "G G", "R R"],
+        ["M M", "G M", "M G", "M G", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-5",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 5",
+      "combo": 5,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", "R R", "G S", "R G", "S S", "R R", "G G", "M M"],
+        ["R R", "G G", "M R", "G M", "R R", "G G", "M M", "P P"],
+        ["G G", "M M", "P G", "M P", "G G", "M M", "P P", "D D"],
+        ["M M", "P P", "D M", "P D", "M M", "P P", "D D", "N N"],
+        ["P P", "D D", "N P", "D N", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ Ṡ", "N N", "D Ṡ", "N D", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N N", "D D", "P N", "D P", "N N", "D D", "P P", "M M"],
+        ["D D", "P P", "M D", "P M", "D D", "P P", "M M", "G G"],
+        ["P P", "M M", "G P", "M G", "P P", "M M", "G G", "R R"],
+        ["M M", "G G", "R M", "G R", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-6",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 6",
+      "combo": 6,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S ,", "S R", ", R", "G G", "S S", "R R", "G G", "M M"],
+        ["R ,", "R G", ", G", "M M", "R R", "G G", "M M", "P P"],
+        ["G ,", "G M", ", M", "P P", "G G", "M M", "P P", "D D"],
+        ["M ,", "M P", ", P", "D D", "M M", "P P", "D D", "N N"],
+        ["P ,", "P D", ", D", "N N", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ ,", "Ṡ N", ", N", "D D", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N ,", "N D", ", D", "P P", "N N", "D D", "P P", "M M"],
+        ["D ,", "D P", ", P", "M M", "D D", "P P", "M M", "G G"],
+        ["P ,", "P M", ", M", "G G", "P P", "M M", "G G", "R R"],
+        ["M ,", "M G", ", G", "R R", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-7",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 7",
+      "combo": 7,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", ", R", "R ,", "G G", "S S", "R R", "G G", "M M"],
+        ["R R", ", G", "G ,", "M M", "R R", "G G", "M M", "P P"],
+        ["G G", ", M", "M ,", "P P", "G G", "M M", "P P", "D D"],
+        ["M M", ", P", "P ,", "D D", "M M", "P P", "D D", "N N"],
+        ["P P", ", D", "D ,", "N N", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ Ṡ", ", N", "N ,", "D D", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N N", ", D", "D ,", "P P", "N N", "D D", "P P", "M M"],
+        ["D D", ", P", "P ,", "M M", "D D", "P P", "M M", "G G"],
+        ["P P", ", M", "M ,", "G G", "P P", "M M", "G G", "R R"],
+        ["M M", ", G", "G ,", "R R", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-8",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 8",
+      "combo": 8,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", "S R", "R R", "G G", "S S", "R R", "G G", "M M"],
+        ["R R", "R G", "G G", "M M", "R R", "G G", "M M", "P P"],
+        ["G G", "G M", "M M", "P P", "G G", "M M", "P P", "D D"],
+        ["M M", "M P", "P P", "D D", "M M", "P P", "D D", "N N"],
+        ["P P", "P D", "D D", "N N", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ Ṡ", "Ṡ N", "N N", "D D", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N N", "N D", "D D", "P P", "N N", "D D", "P P", "M M"],
+        ["D D", "D P", "P P", "M M", "D D", "P P", "M M", "G G"],
+        ["P P", "P M", "M M", "G G", "P P", "M M", "G G", "R R"],
+        ["M M", "M G", "G G", "R R", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-9",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 9",
+      "combo": 9,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S ,", "S R", ", R", "G G", "S S", ", R", "R ,", "G G"],
+        ["S S", "S R", "R R", "G G", "S S", "R R", "G G", "M M"],
+        ["R ,", "R G", ", G", "M M", "R R", ", G", "G ,", "M M"],
+        ["R R", "R G", "G G", "M M", "R R", "G G", "M M", "P P"],
+        ["G ,", "G M", ", M", "P P", "G G", ", M", "M ,", "P P"],
+        ["G G", "G M", "M M", "P P", "G G", "M M", "P P", "D D"],
+        ["M ,", "M P", ", P", "D D", "M M", ", P", "P ,", "D D"],
+        ["M M", "M P", "P P", "D D", "M M", "P P", "D D", "N N"],
+        ["P ,", "P D", ", D", "N N", "P P", ", D", "D ,", "N N"],
+        ["P P", "P D", "D D", "N N", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ ,", "Ṡ N", ", N", "D D", "Ṡ Ṡ", ", N", "N ,", "D D"],
+        ["Ṡ Ṡ", "Ṡ N", "N N", "D D", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N ,", "N D", ", D", "P P", "N N", ", D", "D ,", "P P"],
+        ["N N", "N D", "D D", "P P", "N N", "D D", "P P", "M M"],
+        ["D ,", "D P", ", P", "M M", "D D", ", P", "P ,", "M M"],
+        ["D D", "D P", "P P", "M M", "D D", "P P", "M M", "G G"],
+        ["P ,", "P M", ", M", "G G", "P P", ", M", "M ,", "G G"],
+        ["P P", "P M", "M M", "G G", "P P", "M M", "G G", "R R"],
+        ["M ,", "M G", ", G", "R R", "M M", ", G", "G ,", "R R"],
+        ["M M", "M G", "G G", "R R", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-10",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 10",
+      "combo": 10,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", "M M", "G G", "R R", "S S", "R R", "G G", "M M"],
+        ["R R", "P P", "M M", "G G", "R R", "G G", "M M", "P P"],
+        ["G G", "D D", "P P", "M M", "G G", "M M", "P P", "D D"],
+        ["M M", "N N", "D D", "P P", "M M", "P P", "D D", "N N"],
+        ["P P", "Ṡ Ṡ", "N N", "D D", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ Ṡ", "P P", "D D", "N N", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N N", "M M", "P P", "D D", "N N", "D D", "P P", "M M"],
+        ["D D", "G G", "M M", "P P", "D D", "P P", "M M", "G G"],
+        ["P P", "R R", "G G", "M M", "P P", "M M", "G G", "R R"],
+        ["M M", "S S", "R R", "G G", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-11",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 11",
+      "combo": 11,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S M", "G M", "R G", "S R", "S S", "R R", "G G", "M M"],
+        ["R P", "M P", "G M", "R G", "R R", "G G", "M M", "P P"],
+        ["G D", "P D", "M P", "G M", "G G", "M M", "P P", "D D"],
+        ["M N", "D N", "P D", "M P", "M M", "P P", "D D", "N N"],
+        ["P Ṡ", "N Ṡ", "D N", "P D", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ P", "D P", "N D", "Ṡ N", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N M", "P M", "D P", "N D", "N N", "D D", "P P", "M M"],
+        ["D G", "M G", "P M", "D P", "D D", "P P", "M M", "G G"],
+        ["P R", "G R", "M G", "P M", "P P", "M M", "G G", "R R"],
+        ["M S", "R S", "G R", "M G", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-12",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 12",
+      "combo": 12,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S R", "R G", "R G", "G M", "S S", "R R", "G G", "M M"],
+        ["R G", "G M", "G M", "M P", "R R", "G G", "M M", "P P"],
+        ["G M", "M P", "M P", "P D", "G G", "M M", "P P", "D D"],
+        ["M P", "P D", "P D", "D N", "M M", "P P", "D D", "N N"],
+        ["P D", "D N", "D N", "N Ṡ", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ N", "N D", "N D", "D P", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N D", "D P", "D P", "P M", "N N", "D D", "P P", "M M"],
+        ["D P", "P M", "P M", "M G", "D D", "P P", "M M", "G G"],
+        ["P M", "M G", "M G", "G R", "P P", "M M", "G G", "R R"],
+        ["M G", "G R", "G R", "R S", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-13",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 13",
+      "combo": 13,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S R", ", R", "G ,", "S R", ", R", "G ,", "S R", "G ,"],
+        ["S R", "G ,", "S R", "R G", "G M", "S R", "R G", "G M"],
+        ["R G", ", G", "M ,", "R G", ", G", "M ,", "R G", "M ,"],
+        ["R G", "M ,", "R G", "G M", "M P", "R G", "G M", "M P"],
+        ["G M", ", M", "P ,", "G M", ", M", "P ,", "G M", "P ,"],
+        ["G M", "P ,", "G M", "M P", "P D", "G M", "M P", "P D"],
+        ["M P", ", P", "D ,", "M P", ", P", "D ,", "M P", "D ,"],
+        ["M P", "D ,", "M P", "P D", "D N", "M P", "P D", "D N"],
+        ["P D", ", D", "N ,", "P D", ", D", "N ,", "P D", "N ,"],
+        ["P D", "N ,", "P D", "D N", "N Ṡ", "P D", "D N", "N Ṡ"],
+        ["Ṡ N", ", N", "D ,", "Ṡ N", ", N", "D ,", "Ṡ N", "D ,"],
+        ["Ṡ N", "D ,", "Ṡ N", "N D", "D P", "Ṡ N", "N D", "D P"],
+        ["N D", ", D", "P ,", "N D", ", D", "P ,", "N D", "P ,"],
+        ["N D", "P ,", "N D", "D P", "P M", "N D", "D P", "P M"],
+        ["D P", ", P", "M ,", "D P", ", P", "M ,", "D P", "M ,"],
+        ["D P", "M ,", "D P", "P M", "M G", "D P", "P M", "M G"],
+        ["P M", ", M", "G ,", "P M", ", M", "G ,", "P M", "G ,"],
+        ["P M", "G ,", "P M", "M G", "G R", "P M", "M G", "G R"],
+        ["M G", ", G", "R ,", "M G", ", G", "R ,", "M G", "R ,"],
+        ["M G", "R ,", "M G", "G R", "R S", "M G", "G R", "R S"]
+      ]
+    },
+    {
+      "id": "janta-14",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 14",
+      "combo": 14,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S R", ", G", ", S", "R G", "S S", "R R", "G G", "M M"],
+        ["R G", ", M", ", R", "G M", "R R", "G G", "M M", "P P"],
+        ["G M", ", P", ", G", "M P", "G G", "M M", "P P", "D D"],
+        ["M P", ", D", ", M", "P D", "M M", "P P", "D D", "N N"],
+        ["P D", ", N", ", P", "D N", "P P", "D D", "N N", "Ṡ Ṡ"],
+        ["Ṡ N", ", D", ", Ṡ", "N D", "Ṡ Ṡ", "N N", "D D", "P P"],
+        ["N D", ", P", ", N", "D P", "N N", "D D", "P P", "M M"],
+        ["D P", ", M", ", D", "P M", "D D", "P P", "M M", "G G"],
+        ["P M", ", G", ", P", "M G", "P P", "M M", "G G", "R R"],
+        ["M G", ", R", ", M", "G R", "M M", "G G", "R R", "S S"]
+      ]
+    },
+    {
+      "id": "janta-15",
+      "group": "Janta Varisai",
+      "title": "Janta Varisai 15",
+      "combo": 15,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S S", "S S", "R R", "R R", "G G", "G G", "M M", "M M"],
+        ["R R", "R R", "G G", "G G", "M M", "M M", "P P", "P P"],
+        ["G G", "G G", "M M", "M M", "P P", "P P", "D D", "D D"],
+        ["M M", "M M", "P P", "P P", "D D", "D D", "N N", "N N"],
+        ["P P", "P P", "D D", "D D", "N N", "N N", "Ṡ Ṡ", "Ṡ Ṡ"],
+        ["Ṡ Ṡ", "Ṡ Ṡ", "N N", "N N", "D D", "D D", "P P", "P P"],
+        ["N N", "N N", "D D", "D D", "P P", "P P", "M M", "M M"],
+        ["D D", "D D", "P P", "P P", "M M", "M M", "G G", "G G"],
+        ["P P", "P P", "M M", "M M", "G G", "G G", "R R", "R R"],
+        ["M M", "M M", "G G", "G G", "R R", "R R", "S S", "S S"]
+      ]
+    }
+  ]
+}

@@ -417,8 +417,10 @@ void main() {
     await pumpStudio(tester);
     await tester.tap(find.byTooltip('Open Navigation & Varisai Drawer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Sarali Varisai 2 — Shadja-Rishabha Anchor'));
+    await tester.tap(find.widgetWithText(ListTile, 'Library'));
     await tester.pumpAndSettle();
+    await tapText(tester, 'Sarali Varisai');
+    await tapText(tester, 'Combo 2');
 
     await tester.tap(find.text('Practice Audio'));
     await tester.pumpAndSettle();
@@ -438,10 +440,37 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(
-      find.text('Sarali Varisai 2 — Shadja-Rishabha Anchor'),
-      findsOneWidget,
-    );
+    expect(find.text('Sarali Varisai 2'), findsOneWidget);
+  });
+
+  testWidgets('Phone Library opens combos and Geetams by category', (
+    tester,
+  ) async {
+    await pumpStudio(tester, size: const Size(360, 640));
+    final library = find.widgetWithText(NavigationDestination, 'Library');
+    await tester.tap(library);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Combo 1'), findsNothing);
+    expect(find.textContaining('Devi Sthuthi'), findsNothing);
+    await tapText(tester, 'Janta Varisai');
+    final lastCombo = find.widgetWithText(OutlinedButton, 'Combo 15');
+    expect(lastCombo.hitTestable(), findsOneWidget);
+    await tester.tap(lastCombo);
+    await tester.pumpAndSettle();
+    expect(find.text('Janta Varisai 15'), findsOneWidget);
+
+    await tester.tap(library);
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Dhatu Varisai');
+    expect(find.text('Combo 8'), findsOneWidget);
+    expect(find.text('Combo 9'), findsNothing);
+    await tapText(tester, 'All categories');
+    await tapText(tester, 'Geetams');
+    expect(find.text('Sri Gananatha (Lambodara) — Malahari'), findsOneWidget);
+    await tapText(tester, 'Devi Sthuthi — Sree Saraswathi');
+    expect(find.text('Devi Sthuthi — Sree Saraswathi'), findsOneWidget);
+    expect(find.textContaining('Arabhi • Roopaka'), findsOneWidget);
   });
 
   testWidgets('Mobile drawer scrolls to Help and Home restores navigation', (

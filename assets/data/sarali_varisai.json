@@ -1,0 +1,174 @@
+{
+  "lessons": [
+    {
+      "id": "sarali-1",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 1",
+      "combo": 1,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 1,
+      "notationRows": [
+        ["S R S R", "S R G M", "S R G M", "P D N Ṡ", "Ṡ N Ṡ N", "Ṡ N D P", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-2",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 2",
+      "combo": 2,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 1,
+      "notationRows": [
+        ["S R G S", "R G S R", "S R G M", "P D N Ṡ", "Ṡ N D Ṡ", "N D Ṡ N", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-3",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 3",
+      "combo": 3,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 1,
+      "notationRows": [
+        ["S R G M", "S R G M", "S R G M", "P D N Ṡ", "Ṡ N D P", "Ṡ N D P", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-4",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 4",
+      "combo": 4,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 1,
+      "notationRows": [
+        ["S R G M", "P , S R", "S R G M", "P D N Ṡ", "Ṡ N D P", "M , Ṡ N", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-5",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 5",
+      "combo": 5,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 1,
+      "notationRows": [
+        ["S R G M", "P D S R", "S R G M", "P D N Ṡ", "Ṡ N D P", "M G Ṡ N", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-6",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 6",
+      "combo": 6,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 1,
+      "notationRows": [
+        ["S R G M", "P D N ,", "S R G M", "P D N Ṡ", "Ṡ N D P", "M G R ,", "S N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-7",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 7",
+      "combo": 7,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 2,
+      "notationRows": [
+        ["S R G M", "P M G R", "S R G M", "P D N Ṡ", "Ṡ N D P", "M P D N", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-8",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 8",
+      "combo": 8,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 2,
+      "notationRows": [
+        ["S R G M", "P M D P", "S R G M", "P D N Ṡ", "Ṡ N D P", "M P G M", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-9",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 9",
+      "combo": 9,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 2,
+      "notationRows": [
+        ["S R G M", "P D M G", "S R G M", "P D N Ṡ", "Ṡ N D P", "M G P D", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-10",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 10",
+      "combo": 10,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 2,
+      "notationRows": [
+        ["S R G M", "P D G M", "S R G M", "P D N Ṡ", "Ṡ N D P", "M G D P", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-11",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 11",
+      "combo": 11,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 3,
+      "notationRows": [
+        ["R S G R", "M G P M", "S R G M", "P D N Ṡ", "N Ṡ D N", "P D M P", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-12",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 12",
+      "combo": 12,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 3,
+      "notationRows": [
+        ["G R S M", "G R P M", "S R G M", "P D N Ṡ", "D N Ṡ P", "D N M P", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-13",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 13",
+      "combo": 13,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "sequence": 3,
+      "notationRows": [
+        ["M G R S", "P M G R", "S R G M", "P D N Ṡ", "P D N Ṡ", "M P D N", "Ṡ N D P", "M G R S"]
+      ]
+    },
+    {
+      "id": "sarali-14",
+      "group": "Sarali Varisai",
+      "title": "Sarali Varisai 14 — Madhya Sthaayi Varisai",
+      "combo": 14,
+      "raga": "Mayamalavagowla",
+      "tala": "Adi Tala (8 Beats)",
+      "notationRows": [
+        ["S R G M", "P , G M", "P , , ,", "P , , ,", "G M P D", "N D P M", "G M P G", "M G R S"],
+        ["S , N D", "N , D P", "D , P M", "P , P ,", "G M P D", "N D P M", "G M P G", "M G R S"],
+        ["S R G R", "G , G M", "P M P ,", "D P D ,", "M P D P", "D N D P", "M P D P", "M G R S"],
+        ["S R G M", "P , P ,", "D D P ,", "M M P ,", "D N Ṡ ,", "Ṡ N D P", "Ṡ N D P", "M G R S"]
+      ]
+    }
+  ]
+}

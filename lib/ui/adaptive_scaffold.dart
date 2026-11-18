@@ -11,6 +11,7 @@ import 'drawers/navigation_drawer.dart';
 import 'drawers/shruti_drawer.dart';
 import 'screens/drone_lab_screen.dart';
 import 'screens/info_pages.dart';
+import 'screens/lesson_library_screen.dart';
 import 'screens/pitch_coach_screen.dart';
 import 'screens/varisai_studio_screen.dart';
 import 'widgets/logo_emblem.dart';
@@ -95,7 +96,10 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
     _selectScreen(StudioScreen.varisai);
   }
 
-  void _addCustomLesson() => showCustomLessonDialog(context, _controller);
+  Future<void> _addCustomLesson() async {
+    final added = await showCustomLessonDialog(context, _controller);
+    if (added == true && mounted) _selectScreen(StudioScreen.varisai);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,12 +124,8 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
             drawer: SwaraGuruNavigationDrawer(
               screen: _screen,
               infoPage: _infoPage,
-              lessons: _controller.lessons,
-              activeLesson: _controller.activeLesson,
               onSelectScreen: _selectScreen,
               onOpenInfoPage: _openInfoPage,
-              onSelectLesson: _selectLesson,
-              onAddCustomLesson: _addCustomLesson,
             ),
             endDrawer: PracticeAudioDrawer(controller: _controller),
             body: Row(
@@ -154,13 +154,7 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
                     color: SwaraColors.borderGold,
                   ),
                 ],
-                Expanded(
-                  child: SingleChildScrollView(
-                    key: ValueKey(_infoPage?.name ?? 'screen-${_screen.name}'),
-                    padding: const EdgeInsets.all(16),
-                    child: _buildPage(),
-                  ),
-                ),
+                Expanded(child: _buildPage()),
               ],
             ),
             bottomNavigationBar: isMobile && _infoPage == null
@@ -188,17 +182,42 @@ class _SwaraGuruAdaptiveScaffoldState extends State<SwaraGuruAdaptiveScaffold> {
 
   Widget _buildPage() {
     final infoPage = _infoPage;
-    if (infoPage != null) {
-      return InfoPageView(page: infoPage, readme: _readme);
-    }
     final controller = _controller;
+    Widget scrollPage(String key, Widget child) => SingleChildScrollView(
+      key: ValueKey(key),
+      padding: const EdgeInsets.all(16),
+      child: child,
+    );
+
+    if (infoPage != null) {
+      return scrollPage(infoPage.name, InfoPageView(page: infoPage, readme: _readme));
+    }
+
     return switch (_screen) {
-      StudioScreen.varisai => VarisaiStudioScreen(
-        controller: controller,
-        onAddCustomLesson: _addCustomLesson,
+      StudioScreen.varisai => scrollPage(
+        'screen-varisai',
+        VarisaiStudioScreen(
+          controller: controller,
+          onAddCustomLesson: _addCustomLesson,
+        ),
       ),
-      StudioScreen.pitchCoach => PitchCoachScreen(controller: controller),
-      StudioScreen.droneLab => PracticeAudioScreen(controller: controller),
+      StudioScreen.library => scrollPage(
+        'screen-library',
+        LessonLibraryScreen(
+          lessons: controller.lessons,
+          activeLesson: controller.activeLesson,
+          onSelectLesson: _selectLesson,
+          onAddCustomLesson: _addCustomLesson,
+        ),
+      ),
+      StudioScreen.pitchCoach => scrollPage(
+        'screen-pitchCoach',
+        PitchCoachScreen(controller: controller),
+      ),
+      StudioScreen.droneLab => scrollPage(
+        'screen-droneLab',
+        PracticeAudioScreen(controller: controller),
+      ),
     };
   }
 }

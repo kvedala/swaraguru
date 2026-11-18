@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -13,12 +12,11 @@ import 'package:swaraguru/pitch/pitch_source.dart';
 
 /// Reads the bundled data assets directly so tests need no async loading.
 CarnaticCatalog loadTestCatalog() {
-  Map<String, dynamic> read(String path) =>
-      jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
-  return CarnaticCatalog.fromJson({
-    ...read(CarnaticCatalog.ragasAsset),
-    ...read(CarnaticCatalog.lessonsAsset),
-  });
+  String read(String path) => File(path).readAsStringSync();
+  return CarnaticCatalog.fromAssetContents(
+    read(CarnaticCatalog.ragasAsset),
+    CarnaticCatalog.lessonAssets.map(read),
+  );
 }
 
 typedef PlayedNote = ({

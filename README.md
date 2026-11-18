@@ -54,11 +54,20 @@ pitch.
 
 ### Ragas and repertoire
 
+Open **Library** in the main navigation to browse Sarali, Janta, Dhatu, and
+Geetams. Choose a combo number or song title to open it in the studio.
+Session-only custom songs and practiced raga scales appear under
+**Custom Songs & Scales**.
+
 - All 72 melakartas plus 25 popular janya ragas (Mohanam, Hamsadhwani,
   Hindolam, Abhogi, Madhyamavati, and more), searchable by name, alias such
   as "Kalyani" or "Todi", or melakarta number.
-- Built-in Sarali Varisai 1-3, Janta Varisai 1, Dhatu Varisai 1, and a Sri
-  Gananatha (Lambodara) Pillari Geetham excerpt in Malahari.
+- All 14 Sarali, 15 Janta, and 8 Dhatu Varisai combos from the Foundation
+  notes. Each combo has one notation pattern; the app controls practice tempo.
+- Devi Sthuthi (Sree Saraswathi) in Arabhi with lyric syllables aligned to
+  notation, plus the Sri Gananatha (Lambodara) excerpt in Malahari. Devi
+  Sthuthi keeps the source's scale and tala as reference and uses the app's
+  Arabhi pitches and existing practice transport.
 - Changing the session raga re-resolves unnumbered letters: `R` in a lesson
   becomes R1 in Mayamalavagowla and R2 in Kalyani. Swaras a janya raga omits
   come from its parent melakarta.
@@ -68,9 +77,15 @@ pitch.
   such as `S R G M P D N Ṡ`, explicit swarasthanas such as `R2 G3 M2`, octave
   marks (`Ṡ` or `S'` above, `Ṇ` or `N.` below), and `,` for karvai.
 
-Ragas and lessons live in `assets/data/ragas.json` and
-`assets/data/lessons.json`. Custom songs remain in memory for the current
-session.
+Ragas live in [`ragas.json`](assets/data/ragas.json). Lesson files are
+[`sarali_varisai.json`](assets/data/sarali_varisai.json),
+[`janta_varisai.json`](assets/data/janta_varisai.json),
+[`dhatu_varisai.json`](assets/data/dhatu_varisai.json), and
+[`geetams.json`](assets/data/geetams.json). Exercise `notationRows` preserve the
+source's cell boundaries; upper Sa is inferred where the Foundation notes do
+not mark the register. A Geetam `score` groups rows by section and sangathi,
+with notation and a lyric syllable in each cell. Legacy excerpts can still use
+flat `notation`. Custom songs remain in memory for the current session.
 
 ### Kaalam and Adi Tala practice
 

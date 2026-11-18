@@ -109,7 +109,7 @@ void main() {
       expect(raga.arohanam, kalyani.arohanam);
       expect(raga.avarohanam, kalyani.avarohanam);
 
-      final lesson = catalog.lessons.last;
+      final lesson = catalog.lessons.singleWhere((l) => l.id == 'geetham-1');
       final json = lesson.toJson();
       expect(json['notation'], lesson.swaras.join(' '));
       expect(CarnaticLesson.fromJson(json).swaras, lesson.swaras);
@@ -210,13 +210,95 @@ void main() {
       }
     });
 
+    test('imports one score per numbered Foundation combo', () {
+      for (final (prefix, count) in [
+        ('sarali', 14),
+        ('janta', 15),
+        ('dhatu', 8),
+      ]) {
+        final lessons = catalog.lessons.where(
+          (l) => l.id.startsWith('$prefix-'),
+        );
+        expect(lessons.map((l) => l.combo), List.generate(count, (i) => i + 1));
+        for (final lesson in lessons) {
+          expect(lesson.notationRows, isNotEmpty, reason: lesson.id);
+          expect(
+            lesson.notationRows!.map((row) => row.length),
+            everyElement(8),
+          );
+        }
+      }
+
+      CarnaticLesson lesson(String id) =>
+          catalog.lessons.singleWhere((l) => l.id == id);
+      expect(lesson('sarali-1').notationRows!.first.take(2), [
+        'S R S R',
+        'S R G M',
+      ]);
+      expect(lesson('sarali-14').notationRows, hasLength(4));
+      expect(lesson('janta-9').notationRows, hasLength(20));
+      expect(lesson('janta-13').notationRows, hasLength(20));
+      expect(lesson('dhatu-8').notationRows, hasLength(20));
+    });
+
+    test('Devi Sthuthi retains lyric alignment and octave marks', () {
+      final lesson = catalog.lessons.singleWhere((l) => l.id == 'devi-sthuthi');
+      final copy = CarnaticLesson.fromJson(
+        jsonDecode(jsonEncode(lesson)) as Map<String, dynamic>,
+      );
+      final score = copy.score!;
+      expect(score.map((s) => (s.name, s.sangathi, s.rows.length)), [
+        ('Pallavi', 1, 1),
+        ('Pallavi', 2, 2),
+        ('Samashti Charanam', null, 2),
+        ('Samashti Charanam', 1, 2),
+        ('Samashti Charanam', 2, 3),
+      ]);
+      expect(score.first.rows.single, hasLength(18));
+      expect(score[1].rows.map((r) => r.length), [18, 18]);
+      expect(score[2].lyrics, hasLength(5));
+      expect(score.first.rows.first[9].notation, 'S N.');
+      expect(score.first.rows.first[9].lyric, 'mo');
+      expect(copy.sourceArohanam, 'SA RI3 MA1 PA DHA3 SA');
+
+      final steps = copy.stepsFor(
+        catalog.scaleFor(catalog.ragaNamed(copy.raga)!),
+      );
+      final start = steps.indexWhere((s) => s.lyric == 'mo');
+      expect(steps[start].note, const SwaraNote(Swara.s));
+      expect(steps[start + 1].note, const SwaraNote(Swara.n3, -1));
+      expect(steps[start + 1].lyric, isNull);
+      expect(steps.where((s) => s.note?.octave == 1), isNotEmpty);
+      expect(steps.where((s) => s.note?.swara == Swara.r2), isNotEmpty);
+      expect(steps.where((s) => s.note?.swara == Swara.d2), isNotEmpty);
+    });
+
+    test('Geetam row boundaries count swaras rather than lyric cells', () {
+      final lesson = catalog.lessons.singleWhere((l) => l.id == 'devi-sthuthi');
+      final firstRow = lesson.score!.first.rows.single;
+      final secondRowIndex = firstRow
+          .expand((cell) => tokenizeNotation(cell.notation))
+          .length;
+      final steps = lesson.stepsFor(
+        catalog.scaleFor(catalog.ragaNamed(lesson.raga)!),
+      );
+      expect(secondRowIndex, greaterThan(firstRow.length));
+      expect(
+        steps.take(secondRowIndex + 1).indexed
+            .where((entry) => entry.$2.startsRow)
+            .map((entry) => entry.$1),
+        [0, secondRowIndex],
+      );
+      expect(steps[secondRowIndex].lyric, 'sri');
+    });
+
     test('karvai sustains the previous swara', () {
       final steps = CarnaticLesson(
         id: 't',
         group: 'g',
         title: 't',
         raga: 'Mayamalavagowla',
-        swaras: tokenizeNotation(' S  , R '),
+        flatNotation: tokenizeNotation(' S  , R '),
       ).stepsFor(catalog.scaleFor(catalog.defaultRaga));
       expect(steps.map((s) => s.label), ['S', ',', 'R1']);
       expect(steps[1].isKarvai, isTrue);

@@ -1,63 +1,58 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../models/models.dart';
 import '../../theme/swara_theme.dart';
 import '../screens/info_pages.dart';
 import '../widgets/labels.dart';
 import '../widgets/logo_emblem.dart';
 
-/// The three main studio screens.
-enum StudioScreen { varisai, pitchCoach, droneLab }
+/// The main studio screens.
+enum StudioScreen { varisai, library, pitchCoach, droneLab }
 
 extension StudioScreenInfo on StudioScreen {
   String get title => switch (this) {
     StudioScreen.varisai => 'Varisai Studio',
+    StudioScreen.library => 'Library',
     StudioScreen.pitchCoach => 'Live Pitch Coach',
     StudioScreen.droneLab => 'Practice Audio',
   };
 
   String get drawerTitle => switch (this) {
     StudioScreen.varisai => 'Varisai Studio (Adi Tala Grid)',
+    StudioScreen.library => 'Library',
     StudioScreen.pitchCoach => 'Live Vocal Pitch Coach',
     StudioScreen.droneLab => 'Practice Audio',
   };
 
   String get shortTitle => switch (this) {
     StudioScreen.varisai => 'Studio',
+    StudioScreen.library => 'Library',
     StudioScreen.pitchCoach => 'Pitch Coach',
     StudioScreen.droneLab => 'Audio',
   };
 
   IconData get icon => switch (this) {
     StudioScreen.varisai => Icons.grid_view_rounded,
+    StudioScreen.library => Icons.library_music_rounded,
     StudioScreen.pitchCoach => Icons.mic_external_on_rounded,
     StudioScreen.droneLab => Icons.surround_sound_rounded,
   };
 }
 
-/// Left drawer: screens, help & legal pages and the lesson repertoire.
+/// Left drawer: screens and help & legal pages.
 /// Every action closes the drawer before invoking its callback.
 class SwaraGuruNavigationDrawer extends StatelessWidget {
   const SwaraGuruNavigationDrawer({
     super.key,
     required this.screen,
     required this.infoPage,
-    required this.lessons,
-    required this.activeLesson,
     required this.onSelectScreen,
     required this.onOpenInfoPage,
-    required this.onSelectLesson,
-    required this.onAddCustomLesson,
   });
 
   final StudioScreen screen;
   final InfoPage? infoPage;
-  final List<CarnaticLesson> lessons;
-  final CarnaticLesson activeLesson;
   final ValueChanged<StudioScreen> onSelectScreen;
   final ValueChanged<InfoPage> onOpenInfoPage;
-  final ValueChanged<CarnaticLesson> onSelectLesson;
-  final VoidCallback onAddCustomLesson;
 
   @override
   Widget build(BuildContext context) {
@@ -100,41 +95,6 @@ class SwaraGuruNavigationDrawer extends StatelessWidget {
                 selected: infoPage == page,
                 onTap: () => closeThen(() => onOpenInfoPage(page)),
               ),
-            const Divider(color: SwaraColors.borderGold),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SectionLabel('REPERTOIRE'),
-                  TextButton.icon(
-                    onPressed: () => closeThen(onAddCustomLesson),
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Custom', style: TextStyle(fontSize: 12)),
-                  ),
-                ],
-              ),
-            ),
-            for (final lesson in lessons)
-              ListTile(
-                selected: lesson.id == activeLesson.id,
-                selectedTileColor: SwaraColors.royalGold.withValues(
-                  alpha: 0.15,
-                ),
-                title: Text(
-                  lesson.title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                subtitle: Text(
-                  '${lesson.group} • ${lesson.raga} • '
-                  '${lesson.swaras.length} Swaras',
-                  style: const TextStyle(fontSize: 11, color: Colors.white60),
-                ),
-                onTap: () => closeThen(() => onSelectLesson(lesson)),
-              ),
           ],
         ),
       ),
@@ -170,7 +130,7 @@ class _DrawerHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Screens & Varisai Library',
+                  'Studio navigation',
                   style: TextStyle(fontSize: 11, color: Colors.white70),
                 ),
               ],

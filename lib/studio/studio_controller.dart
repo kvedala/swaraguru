@@ -271,7 +271,7 @@ class StudioController extends ChangeNotifier {
       title: title.trim().isEmpty ? 'Custom Varnam / Geetham' : title.trim(),
       raga: raga.name,
       description: 'User-entered custom swara notation.',
-      swaras: tokens,
+      flatNotation: tokens,
     );
     _lessons.add(lesson);
     selectLesson(lesson);

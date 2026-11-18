@@ -5,11 +5,11 @@ import '../../studio/studio_controller.dart';
 import '../../theme/swara_theme.dart';
 import '../widgets/raga_selector.dart';
 
-Future<void> showCustomLessonDialog(
+Future<bool?> showCustomLessonDialog(
   BuildContext context,
   StudioController controller,
 ) {
-  return showDialog<void>(
+  return showDialog<bool>(
     context: context,
     builder: (_) => CustomLessonDialog(controller: controller),
   );
@@ -47,7 +47,7 @@ class _CustomLessonDialogState extends State<CustomLessonDialog> {
       group: '',
       title: '',
       raga: _raga.name,
-      swaras: tokens,
+      flatNotation: tokens,
     ).invalidTokens;
     final error = tokens.isEmpty
         ? 'Enter at least one swara.'
@@ -63,7 +63,7 @@ class _CustomLessonDialogState extends State<CustomLessonDialog> {
       raga: _raga,
       tokens: tokens,
     );
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(true);
   }
 
   @override

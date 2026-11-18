@@ -1,0 +1,66 @@
+{
+  "lessons": [
+    {
+      "id": "geetham-1",
+      "group": "Pillari Geetham",
+      "title": "Sri Gananatha (Lambodara) — Malahari",
+      "raga": "Malahari",
+      "tala": "Rupaka / Adi Grid",
+      "description": "Purandaradasa Pillari Geetham swara pallavi.",
+      "notation": "M P D Ṡ Ṡ Ṙ Ṙ Ṡ D P M P G R S ,"
+    },
+    {
+      "id": "devi-sthuthi",
+      "group": "Geetam",
+      "title": "Devi Sthuthi — Sree Saraswathi",
+      "raga": "Arabhi",
+      "tala": "Roopaka (Tisrajaathi Triputa)",
+      "description": "Composed by Muthuswami Deekshithar.",
+      "sourceArohanam": "SA RI3 MA1 PA DHA3 SA",
+      "sourceAvarohanam": "SA NI3 DHA3 PA MA1 GA3 RI3 SA",
+      "score": [
+        {
+          "name": "Pallavi",
+          "sangathi": 1,
+          "lyrics": ["SREE SARASWATHI NAMOSTHUTHUE VARADHE", "SREE SARASWATHI NAMOSTHUTHUE PARADEVATHE", "SREEPAHI GOWRIPATHI GURUGUHA VINUTHE VIDHIYUVATHE (SREE SARASWATHI)"],
+          "rows": [
+            [{"notation": "P", "lyric": "sri"}, {"notation": ",", "lyric": "."}, {"notation": "M", "lyric": "sa"}, {"notation": "G R", "lyric": "ra"}, {"notation": "R", "lyric": "."}, {"notation": "R", "lyric": "swa"}, {"notation": "S", "lyric": "thi"}, {"notation": ",", "lyric": "."}, {"notation": "S", "lyric": "na"}, {"notation": "S N.", "lyric": "mo"}, {"notation": "D.", "lyric": "."}, {"notation": "R S", "lyric": "sthu"}, {"notation": "S", "lyric": "the"}, {"notation": "R", "lyric": "."}, {"notation": "R", "lyric": "."}, {"notation": "R", "lyric": "."}, {"notation": "R S", "lyric": "vara"}, {"notation": "R M", "lyric": "dhe"}]
+          ]
+        },
+        {
+          "name": "Pallavi",
+          "sangathi": 2,
+          "rows": [
+            [{"notation": "P", "lyric": "sri"}, {"notation": ",", "lyric": "."}, {"notation": "M", "lyric": "sa"}, {"notation": "G R", "lyric": "ra"}, {"notation": "R", "lyric": "."}, {"notation": "R", "lyric": "swa"}, {"notation": "S", "lyric": "thi"}, {"notation": ",", "lyric": "."}, {"notation": "S", "lyric": "na"}, {"notation": "S N.", "lyric": "mo"}, {"notation": "D", "lyric": "."}, {"notation": "R S", "lyric": "sthu"}, {"notation": "S", "lyric": "the"}, {"notation": "R", "lyric": "."}, {"notation": "R", "lyric": "."}, {"notation": "R", "lyric": "."}, {"notation": "D", "lyric": "pa"}, {"notation": "P", "lyric": "ra"}],
+            [{"notation": "M", "lyric": "de"}, {"notation": ",", "lyric": "."}, {"notation": "M", "lyric": "va"}, {"notation": "R M", "lyric": "the"}, {"notation": "R S", "lyric": "."}, {"notation": "R", "lyric": "."}, {"notation": "S", "lyric": "sri"}, {"notation": "S D", "lyric": "pathi"}, {"notation": "M", "lyric": "gow"}, {"notation": "R", "lyric": "ri"}, {"notation": "P M", "lyric": "pathi"}, {"notation": "G R", "lyric": "guru"}, {"notation": "M P", "lyric": "guha"}, {"notation": "D R'", "lyric": "vinu"}, {"notation": "S'", "lyric": "the"}, {"notation": "D P", "lyric": "vidhi"}, {"notation": "M G", "lyric": "yuva"}, {"notation": "R M", "lyric": "the"}]
+          ]
+        },
+        {
+          "name": "Samashti Charanam",
+          "lyrics": ["VASANATRAYA VIVARJITHA VARAMUNI BHAVITHA MURTHE", "VASAVADHYAKHILA NIRJARA VARA VITHARANA BAHUKIRTHE", "DHARAHAASAYUTHA MUKHAMBORUHE ADBUTHA CHARANAMBORUHE", "SAMSAARA BHITYAPAHE SAKHALA MANTRAKSHARA GUHE", "(SREE SARASWATHI)"],
+          "rows": [
+            [{"notation": "R", "lyric": "va"}, {"notation": ",", "lyric": "."}, {"notation": "S", "lyric": "sa"}, {"notation": "D", "lyric": "na"}, {"notation": ",", "lyric": "."}, {"notation": "S", "lyric": "thra"}, {"notation": "S", "lyric": "ya"}, {"notation": "R", "lyric": "vi"}, {"notation": "S", "lyric": "va"}, {"notation": ",", "lyric": "r"}, {"notation": "N", "lyric": "ji"}, {"notation": "D.", "lyric": "tha"}, {"notation": "R", "lyric": "va"}, {"notation": "S", "lyric": "ra"}, {"notation": "R", "lyric": "mu"}, {"notation": "M", "lyric": "ni"}, {"notation": "M G", "lyric": "bha"}, {"notation": "R", "lyric": "."}],
+            [{"notation": "P", "lyric": "vi"}, {"notation": "P M", "lyric": "dha"}, {"notation": "P", "lyric": "mu"}, {"notation": "D S'", "lyric": "."}, {"notation": "P D", "lyric": "thre"}, {"notation": "P", "lyric": "."}]
+          ]
+        },
+        {
+          "name": "Samashti Charanam",
+          "sangathi": 1,
+          "rows": [
+            [{"notation": "S' N", "lyric": "va"}, {"notation": "D", "lyric": "."}, {"notation": "S'", "lyric": "sa"}, {"notation": "S'", "lyric": "va"}, {"notation": ",", "lyric": "."}, {"notation": "R'", "lyric": "dhya"}, {"notation": "S'", "lyric": "khi"}, {"notation": "R'", "lyric": "la"}, {"notation": "M'", "lyric": "ni"}, {"notation": "R'", "lyric": "r"}, {"notation": "R'", "lyric": "ja"}, {"notation": "S'", "lyric": "ra"}, {"notation": "S' D", "lyric": "va"}, {"notation": "D R'", "lyric": "ra"}, {"notation": "S'", "lyric": "vi"}, {"notation": "S' D", "lyric": "tha"}, {"notation": "D", "lyric": "ra"}, {"notation": "P", "lyric": "na"}],
+            [{"notation": "M", "lyric": "bha"}, {"notation": "P D", "lyric": "hu"}, {"notation": "M", "lyric": "kee"}, {"notation": "G", "lyric": "r"}, {"notation": "R S", "lyric": "the"}, {"notation": "R", "lyric": "."}]
+          ]
+        },
+        {
+          "name": "Samashti Charanam",
+          "sangathi": 2,
+          "rows": [
+            [{"notation": "S' N", "lyric": "va"}, {"notation": "D", "lyric": "."}, {"notation": "S'", "lyric": "sa"}, {"notation": "S'", "lyric": "va"}, {"notation": ",", "lyric": "."}, {"notation": "R'", "lyric": "dhya"}, {"notation": "S'", "lyric": "khi"}, {"notation": "R'", "lyric": "la"}, {"notation": "M'", "lyric": "ni"}, {"notation": "R'", "lyric": "r"}, {"notation": "R'", "lyric": "ja"}, {"notation": "S'", "lyric": "ra"}, {"notation": "S' D", "lyric": "va"}, {"notation": "D R'", "lyric": "ra"}, {"notation": "S'", "lyric": "vi"}, {"notation": "S' D", "lyric": "tha"}, {"notation": "D", "lyric": "ra"}, {"notation": "P", "lyric": "na"}],
+            [{"notation": "M", "lyric": "bha"}, {"notation": "P D", "lyric": "hu"}, {"notation": "M", "lyric": "kee"}, {"notation": "G", "lyric": "r"}, {"notation": "R M", "lyric": "the"}, {"notation": "R S", "lyric": "dhara"}, {"notation": "D.", "lyric": "ha"}, {"notation": "S S", "lyric": "sayu"}, {"notation": "R S", "lyric": "dhamu"}, {"notation": "R M", "lyric": "kham"}, {"notation": "M G", "lyric": "boru"}, {"notation": "R", "lyric": "he"}, {"notation": "P", "lyric": "adh"}, {"notation": "P P", "lyric": "bhutha"}, {"notation": "D S'", "lyric": "chara"}, {"notation": "D P", "lyric": "nam"}, {"notation": "D R'", "lyric": "boru"}, {"notation": "S'", "lyric": "he"}],
+            [{"notation": "R'", "lyric": "sam"}, {"notation": "R'", "lyric": "saa"}, {"notation": "M'", "lyric": "ra"}, {"notation": "R' S'", "lyric": "bhitya"}, {"notation": ", D", "lyric": ".pa"}, {"notation": "R'", "lyric": "he"}, {"notation": "S' N", "lyric": "sakha"}, {"notation": "D P", "lyric": "laman"}, {"notation": "M", "lyric": "ntra"}, {"notation": "G", "lyric": "khsha"}, {"notation": "R S", "lyric": "ragu"}, {"notation": "R M", "lyric": "he"}]
+          ]
+        }
+      ]
+    }
+  ]
+}
